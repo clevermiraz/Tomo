@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "./ThemeToggle";
 
 export default function SiteHeader() {
   return (
@@ -13,19 +14,20 @@ export default function SiteHeader() {
           </span>
           <span className="text-lg font-bold tracking-tight">Tomo</span>
         </Link>
-        <div className="flex items-center gap-1 text-sm font-medium">
+        <div className="flex items-center gap-1.5 text-sm font-medium">
           <Link
             href="/"
-            className="rounded-full px-3 py-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+            className="rounded-full px-3 py-1.5 text-muted transition-colors hover:bg-surface2 hover:text-fg"
           >
             Timer
           </Link>
           <Link
             href="/blog"
-            className="rounded-full px-3 py-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+            className="rounded-full px-3 py-1.5 text-muted transition-colors hover:bg-surface2 hover:text-fg"
           >
             Blog
           </Link>
+          <ThemeToggle />
         </div>
       </nav>
     </header>

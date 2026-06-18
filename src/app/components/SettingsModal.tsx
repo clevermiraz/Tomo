@@ -19,24 +19,24 @@ function Stepper({
 }) {
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
   return (
-    <div className="flex items-center justify-between rounded-2xl bg-white/5 p-3">
-      <span className="text-sm font-medium text-white/80">{label}</span>
+    <div className="flex items-center justify-between rounded-2xl bg-surface2 p-3">
+      <span className="text-sm font-medium">{label}</span>
       <div className="flex items-center gap-2">
         <button
           onClick={() => onChange(clamp(value - 1))}
           aria-label={`Decrease ${label}`}
-          className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-lg font-bold text-white/80 hover:bg-white/20"
+          className="press grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-lg font-bold"
         >
           −
         </button>
         <span className="tabular w-14 text-center text-sm font-semibold">
           {value}
-          {suffix ? <span className="text-white/40"> {suffix}</span> : null}
+          {suffix ? <span className="text-faint"> {suffix}</span> : null}
         </span>
         <button
           onClick={() => onChange(clamp(value + 1))}
           aria-label={`Increase ${label}`}
-          className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-lg font-bold text-white/80 hover:bg-white/20"
+          className="press grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-lg font-bold"
         >
           +
         </button>
@@ -57,10 +57,10 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center justify-between rounded-2xl bg-white/5 p-3">
-      <span className="text-sm font-medium text-white/80">
+    <label className="flex items-center justify-between rounded-2xl bg-surface2 p-3">
+      <span className="text-sm font-medium">
         {label}
-        {hint ? <span className="block text-xs text-white/45">{hint}</span> : null}
+        {hint ? <span className="block text-xs text-faint">{hint}</span> : null}
       </span>
       <input
         type="checkbox"
@@ -88,20 +88,20 @@ export default function SettingsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="card-3d relative z-10 max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-3xl p-6 sm:rounded-3xl">
+      <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={onClose} />
+      <div className="surface relative z-10 max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-3xl p-6 sm:rounded-3xl">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-lg font-bold">Settings</h2>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/70 hover:bg-white/20"
+            className="press grid h-9 w-9 place-items-center rounded-full bg-surface2 text-muted"
           >
             ✕
           </button>
         </div>
 
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/40">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-faint">
           Timer (minutes)
         </p>
         <div className="space-y-2.5">
@@ -118,10 +118,16 @@ export default function SettingsModal({
           />
         </div>
 
-        <p className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wider text-white/40">
+        <p className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wider text-faint">
           Behaviour
         </p>
         <div className="space-y-2.5">
+          <Toggle
+            label="Start music with timer"
+            hint="Play the default focus music on Start"
+            checked={settings.defaultMusic}
+            onChange={(v) => set({ defaultMusic: v })}
+          />
           <Toggle
             label="Auto-start next timer"
             hint="Roll straight into the next session"
@@ -140,10 +146,10 @@ export default function SettingsModal({
             checked={settings.ticking}
             onChange={(v) => set({ ticking: v })}
           />
-          <div className="rounded-2xl bg-white/5 p-3">
+          <div className="rounded-2xl bg-surface2 p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-white/80">Volume</span>
-              <span className="tabular text-sm text-white/50">
+              <span className="text-sm font-medium">Volume</span>
+              <span className="tabular text-sm text-muted">
                 {Math.round(settings.volume * 100)}%
               </span>
             </div>
@@ -161,7 +167,7 @@ export default function SettingsModal({
 
         <button
           onClick={() => onChange({ ...DEFAULT_SETTINGS })}
-          className="mt-5 w-full rounded-2xl bg-white/5 py-3 text-sm font-medium text-white/60 hover:bg-white/10"
+          className="press mt-5 w-full rounded-2xl bg-surface2 py-3 text-sm font-medium text-muted"
         >
           Reset to defaults
         </button>

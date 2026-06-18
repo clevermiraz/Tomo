@@ -117,7 +117,7 @@ You'll get HTTPS out of the box, so the PWA install prompt works immediately.
 The bundled music is royalty-free / public-domain and free for commercial use:
 
 - **Lofi Study** — [Pixabay Music](https://pixabay.com/music/) (Pixabay Content License, no attribution required)
-- **Meditation** & **Wholesome Calm** — by **Kevin MacLeod** ([incompetech.com](https://incompetech.com)), licensed under [Creative Commons: By Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+- **Meditation**, **Wholesome Calm**, **Reawakening**, **Pamgaea**, **Spring Thaw** & **Magic Forest** — by **Kevin MacLeod** ([incompetech.com](https://incompetech.com)), licensed under [Creative Commons: By Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 Rain, Ocean, Brown noise and White noise are generated in-browser with the Web Audio API (no files).
 

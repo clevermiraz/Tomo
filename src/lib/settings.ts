@@ -8,6 +8,7 @@ export interface Settings {
   volume: number; // 0..1
   ticking: boolean; // ticking clock during focus
   autoplayFocus: boolean; // auto-play focus sounds during focus, pause on breaks
+  defaultMusic: boolean; // start the default focus music when the timer starts
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -20,4 +21,5 @@ export const DEFAULT_SETTINGS: Settings = {
   volume: 0.7,
   ticking: false,
   autoplayFocus: false,
+  defaultMusic: true,
 };

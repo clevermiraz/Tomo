@@ -26,13 +26,13 @@ function renderBlock(block: Block, i: number) {
   switch (block.type) {
     case "h2":
       return (
-        <h2 key={i} className="mt-9 mb-3 text-xl font-bold text-white sm:text-2xl">
+        <h2 key={i} className="mt-9 mb-3 text-xl font-bold sm:text-2xl">
           {block.text}
         </h2>
       );
     case "p":
       return (
-        <p key={i} className="mb-4 leading-relaxed text-white/70">
+        <p key={i} className="mb-4 leading-relaxed text-muted">
           {block.text}
         </p>
       );
@@ -40,17 +40,17 @@ function renderBlock(block: Block, i: number) {
       return (
         <blockquote
           key={i}
-          className="my-6 rounded-2xl border-l-4 border-[var(--accent)] bg-white/5 p-4 italic text-white/80"
+          className="my-6 rounded-2xl border-l-4 border-[var(--accent)] bg-surface2 p-4 italic"
         >
           “{block.text}”
           {block.cite ? (
-            <footer className="mt-2 text-sm not-italic text-white/45">— {block.cite}</footer>
+            <footer className="mt-2 text-sm not-italic text-faint">— {block.cite}</footer>
           ) : null}
         </blockquote>
       );
     case "ul":
       return (
-        <ul key={i} className="mb-4 list-disc space-y-1.5 pl-5 text-white/70">
+        <ul key={i} className="mb-4 list-disc space-y-1.5 pl-5 text-muted">
           {block.items.map((it, j) => (
             <li key={j}>{it}</li>
           ))}
@@ -58,7 +58,7 @@ function renderBlock(block: Block, i: number) {
       );
     case "ol":
       return (
-        <ol key={i} className="mb-4 list-decimal space-y-1.5 pl-5 text-white/70">
+        <ol key={i} className="mb-4 list-decimal space-y-1.5 pl-5 text-muted">
           {block.items.map((it, j) => (
             <li key={j}>{it}</li>
           ))}
@@ -82,31 +82,31 @@ export default async function PostPage({
       <main className="relative z-10 mx-auto max-w-2xl px-5 pb-20 pt-28">
         <Link
           href="/blog"
-          className="mb-8 inline-block text-sm text-white/50 transition-colors hover:text-white"
+          className="mb-8 inline-block text-sm text-muted transition-colors hover:text-fg"
         >
           ← All articles
         </Link>
 
-        <div className="mb-2 flex items-center gap-2 text-xs text-white/45">
-          <span className="font-semibold text-[var(--accent-soft)]">{post.category}</span>
+        <div className="mb-2 flex items-center gap-2 text-xs text-faint">
+          <span className="font-semibold text-accent">{post.category}</span>
           <span>·</span>
           <span>{post.readMins} min read</span>
         </div>
         <h1 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           {post.title}
         </h1>
-        <p className="mt-3 text-lg text-white/55">{post.excerpt}</p>
+        <p className="mt-3 text-lg text-muted">{post.excerpt}</p>
 
         <article className="mt-8">{post.body.map(renderBlock)}</article>
 
-        <div className="card-3d mt-12 rounded-2xl p-6 text-center">
+        <div className="surface mt-12 rounded-2xl p-6 text-center">
           <p className="text-lg font-bold">Ready to focus?</p>
-          <p className="mt-1 text-sm text-white/55">
+          <p className="mt-1 text-sm text-muted">
             Put it into practice with one 25-minute sprint.
           </p>
           <Link
             href="/"
-            className="btn-3d btn-primary mt-4 inline-block px-6 py-3 text-sm font-bold text-white"
+            className="press btn-primary mt-4 inline-block rounded-full px-6 py-3 text-sm font-bold"
           >
             Open Tomo →
           </Link>

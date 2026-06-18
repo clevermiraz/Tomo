@@ -66,7 +66,7 @@ export default function InstallPrompt() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-[60] flex justify-center p-4 sm:bottom-4">
-      <div className="card-3d flex w-full max-w-md items-center gap-3 rounded-2xl p-3.5">
+      <div className="surface flex w-full max-w-md items-center gap-3 rounded-2xl p-3.5">
         <div
           className="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl"
           style={{ background: "linear-gradient(180deg, var(--accent-soft), var(--accent))" }}
@@ -76,11 +76,11 @@ export default function InstallPrompt() {
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold">Install Tomo</p>
           {isIOS ? (
-            <p className="text-xs text-white/55">
+            <p className="text-xs text-muted">
               Tap Share ⎋ then “Add to Home Screen” ➕
             </p>
           ) : (
-            <p className="text-xs text-white/55">
+            <p className="text-xs text-muted">
               Your focus friend, one tap away on your home screen.
             </p>
           )}
@@ -88,7 +88,7 @@ export default function InstallPrompt() {
         {isIOS ? (
           <button
             onClick={dismiss}
-            className="shrink-0 rounded-full bg-white/10 px-3 py-2 text-sm font-semibold text-white/70"
+            className="press shrink-0 rounded-full bg-surface2 px-3 py-2 text-sm font-semibold text-muted"
           >
             Got it
           </button>
@@ -97,13 +97,13 @@ export default function InstallPrompt() {
             <button
               onClick={dismiss}
               aria-label="Dismiss"
-              className="rounded-full px-2 py-2 text-sm text-white/40 hover:text-white/70"
+              className="rounded-full px-2 py-2 text-sm text-faint hover:text-fg"
             >
               Later
             </button>
             <button
               onClick={install}
-              className="btn-3d btn-primary px-4 py-2 text-sm font-bold text-white"
+              className="press btn-primary rounded-full px-4 py-2 text-sm font-bold"
             >
               Install
             </button>
