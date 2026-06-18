@@ -34,6 +34,12 @@ export default function FocusTimer({
 
   const deadlineRef = useRef<number | null>(null);
   const lastSecondRef = useRef(secondsLeft);
+  // Each mode remembers its own remaining time across tab switches.
+  const savedRef = useRef<Record<Mode, number>>({
+    focus: settings.focus * 60,
+    short: settings.short * 60,
+    long: settings.long * 60,
+  });
 
   const minutesFor = useCallback(
     (m: Mode) => (m === "focus" ? settings.focus : m === "short" ? settings.short : settings.long),
@@ -47,6 +53,12 @@ export default function FocusTimer({
   }, [mode]);
 
   useEffect(() => {
+    // Changing a duration in Settings resets each mode to its new full length.
+    savedRef.current = {
+      focus: settings.focus * 60,
+      short: settings.short * 60,
+      long: settings.long * 60,
+    };
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!running) setSecondsLeft(minutesFor(mode) * 60);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,8 +72,10 @@ export default function FocusTimer({
   const switchMode = useCallback(
     (next: Mode, autoStart: boolean) => {
       deadlineRef.current = null;
+      const full = minutesFor(next) * 60;
+      savedRef.current[next] = full;
       setMode(next);
-      setSecondsLeft(minutesFor(next) * 60);
+      setSecondsLeft(full);
       setRunning(autoStart);
     },
     [minutesFor]
@@ -76,6 +90,7 @@ export default function FocusTimer({
 
       if (remaining <= 0) {
         setSecondsLeft(0);
+        savedRef.current[mode] = minutesFor(mode) * 60; // finished mode resets for next time
         if (settings.soundOn)
           playAlarm(mode === "focus" ? "focusEnd" : "breakEnd", settings.volume);
         if (mode === "focus") {
@@ -112,10 +127,14 @@ export default function FocusTimer({
   }, [secondsLeft, mode]);
 
   const selectMode = (next: Mode) => {
+    if (next === mode) return;
+    // Remember where this mode is, pause, then restore the target mode's time.
+    savedRef.current[mode] = secondsLeft;
     setRunning(false);
     deadlineRef.current = null;
     setMode(next);
-    setSecondsLeft(minutesFor(next) * 60);
+    const saved = savedRef.current[next];
+    setSecondsLeft(saved > 0 ? saved : minutesFor(next) * 60);
   };
 
   const toggleRun = () => {
@@ -126,6 +145,7 @@ export default function FocusTimer({
   const reset = () => {
     setRunning(false);
     deadlineRef.current = null;
+    savedRef.current[mode] = total;
     setSecondsLeft(total);
   };
 

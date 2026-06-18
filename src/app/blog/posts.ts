@@ -31,7 +31,7 @@ export const POSTS: Post[] = [
       { type: "h2", text: "2. Press Start and protect the 25 minutes" },
       { type: "p", text: "Hit Start and commit. For the next 25 minutes, that one task is the only thing that exists. If a distraction pops into your head, jot it on a notepad and return to the work — don't act on it. The ring around the timer fills as you go so you always know where you stand." },
       { type: "h2", text: "3. Set your vibe with Focus Sounds" },
-      { type: "p", text: "Open the sound panel and choose what helps you concentrate: synthesized rainfall and ocean waves, brown or white noise to mask distractions, or gentle lofi and ambient music. Turn on \"Auto-play during focus\" and Tomo starts your sounds when you focus and pauses them on breaks." },
+      { type: "p", text: "Open the sound panel and choose what helps you concentrate: rain on the roof, dreamy lofi beats, calm piano, or warm ambient tracks. Turn on \"Auto-play during focus\" and Tomo starts your sounds when you focus and pauses them on breaks." },
       { type: "h2", text: "4. Take the break — really" },
       { type: "p", text: "When the chime sounds, your focus block is done. Tomo automatically switches you to a 5-minute break. Stand up, stretch, look out a window, breathe. The break isn't a reward you can skip — it's what makes the next sprint possible." },
       { type: "h2", text: "5. Make it yours" },

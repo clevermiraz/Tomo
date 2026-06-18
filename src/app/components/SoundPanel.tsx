@@ -3,26 +3,21 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import Sheet from "./Sheet";
-import { SynthSound, type Soundscape } from "@/lib/audio";
 
-type Track =
-  | { id: string; name: string; vibe: string; icon: string; kind: "synth"; synth: Soundscape }
-  | { id: string; name: string; vibe: string; icon: string; kind: "file"; src: string };
+type Track = { id: string; name: string; vibe: string; icon: string; src: string };
 
 export const DEFAULT_TRACK_ID = "muse";
 
 const TRACKS: Track[] = [
-  { id: "muse", name: "Muse", vibe: "Dreamy focus", icon: "🎧", kind: "file", src: "/sounds/muse.mp3" },
-  { id: "rain", name: "Rainfall", vibe: "Rainy vibe", icon: "🌧️", kind: "synth", synth: "rain" },
-  { id: "ocean", name: "Ocean Waves", vibe: "Calm tide", icon: "🌊", kind: "synth", synth: "ocean" },
-  { id: "brown", name: "Brown Noise", vibe: "Deep focus", icon: "🟤", kind: "synth", synth: "brown" },
-  { id: "lofi", name: "Lofi Study", vibe: "Chill beats", icon: "🎵", kind: "file", src: "/sounds/lofi-study.mp3" },
-  { id: "meditation", name: "Meditation", vibe: "Soft piano", icon: "🧘", kind: "file", src: "/sounds/ambient-meditation.mp3" },
-  { id: "wholesome", name: "Wholesome Calm", vibe: "Warm ambient", icon: "☀️", kind: "file", src: "/sounds/ambient-wholesome.mp3" },
-  { id: "reawakening", name: "Reawakening", vibe: "Gentle uplift", icon: "🌅", kind: "file", src: "/sounds/ambient-reawakening.mp3" },
-  { id: "pamgaea", name: "Pamgaea", vibe: "Worldly calm", icon: "🌍", kind: "file", src: "/sounds/ambient-pamgaea.mp3" },
-  { id: "springthaw", name: "Spring Thaw", vibe: "Light & airy", icon: "🌱", kind: "file", src: "/sounds/ambient-springthaw.mp3" },
-  { id: "magicforest", name: "Magic Forest", vibe: "Dreamy nature", icon: "🌲", kind: "file", src: "/sounds/ambient-magicforest.mp3" },
+  { id: "muse", name: "Muse", vibe: "Dreamy focus", icon: "🎧", src: "/sounds/muse.mp3" },
+  { id: "rain", name: "Rain on Roof", vibe: "Rainy vibe", icon: "🌧️", src: "/sounds/rain-on-roof.mp3" },
+  { id: "lofi", name: "Lofi Study", vibe: "Chill beats", icon: "🎵", src: "/sounds/lofi-study.mp3" },
+  { id: "meditation", name: "Meditation", vibe: "Soft piano", icon: "🧘", src: "/sounds/ambient-meditation.mp3" },
+  { id: "wholesome", name: "Wholesome Calm", vibe: "Warm ambient", icon: "☀️", src: "/sounds/ambient-wholesome.mp3" },
+  { id: "reawakening", name: "Reawakening", vibe: "Gentle uplift", icon: "🌅", src: "/sounds/ambient-reawakening.mp3" },
+  { id: "pamgaea", name: "Pamgaea", vibe: "Worldly calm", icon: "🌍", src: "/sounds/ambient-pamgaea.mp3" },
+  { id: "springthaw", name: "Spring Thaw", vibe: "Light & airy", icon: "🌱", src: "/sounds/ambient-springthaw.mp3" },
+  { id: "magicforest", name: "Magic Forest", vibe: "Dreamy nature", icon: "🌲", src: "/sounds/ambient-magicforest.mp3" },
 ];
 
 export function trackMeta(id: string | null) {
@@ -61,7 +56,6 @@ export default function SoundPanel({
   onState: (s: SoundState) => void;
 }) {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const synthRef = useRef<SynthSound | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const activeIdRef = useRef<string | null>(null);
   const userPausedRef = useRef(false);
@@ -81,8 +75,6 @@ export default function SoundPanel({
   };
 
   const stop = () => {
-    synthRef.current?.stop();
-    synthRef.current = null;
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -90,19 +82,12 @@ export default function SoundPanel({
   };
 
   const play = (track: Track) => {
-    const v = volumeRef.current;
     stop();
-    if (track.kind === "synth") {
-      const s = new SynthSound();
-      s.start(track.synth, v);
-      synthRef.current = s;
-    } else {
-      const a = new Audio(track.src);
-      a.loop = true;
-      a.volume = v;
-      a.play().catch(() => {});
-      audioRef.current = a;
-    }
+    const a = new Audio(track.src);
+    a.loop = true;
+    a.volume = volumeRef.current;
+    a.play().catch(() => {});
+    audioRef.current = a;
     setActive(track.id);
   };
 
@@ -128,7 +113,6 @@ export default function SoundPanel({
   }, [activeId]);
 
   useEffect(() => {
-    synthRef.current?.setVolume(volume);
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
 
@@ -141,17 +125,16 @@ export default function SoundPanel({
           if (!id && !userPausedRef.current) play(trackMeta(activeId) ?? TRACKS[0]);
         } else if (id) {
           if (audioRef.current) audioRef.current.pause();
-          synthRef.current?.setVolume(0);
         }
       },
       toggleById: (id) => {
         const t = trackMeta(id);
-        if (t) toggle(t as Track);
+        if (t) toggle(t);
       },
       playDefault: () => {
         if (activeIdRef.current || userPausedRef.current) return;
         const t = trackMeta(DEFAULT_TRACK_ID);
-        if (t) play(t as Track);
+        if (t) play(t);
       },
       cycle: (dir) => {
         const i = TRACKS.findIndex((t) => t.id === activeIdRef.current);

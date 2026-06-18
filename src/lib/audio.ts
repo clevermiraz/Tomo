@@ -1,11 +1,9 @@
 "use client";
 
 /**
- * A tiny Web Audio toolkit for Tomo:
- *  - one-shot alarms (focus-end / break-end) and a ticking sound
- *  - looping synthesized soundscapes (rain, ocean, brown/white noise)
- * Everything shares a single, lazily-created AudioContext so it works
- * offline with zero audio files.
+ * A tiny Web Audio toolkit for Tomo: one-shot alarms (focus-end / break-end),
+ * a ticking clock, and breathing guidance tones. Everything shares a single,
+ * lazily-created AudioContext.
  */
 
 let ctx: AudioContext | null = null;
@@ -110,120 +108,3 @@ export function playBreathCue(kind: "in" | "out", durationSec: number, volume = 
   osc.stop(now + dur + 0.05);
 }
 
-function noiseBuffer(c: AudioContext, brown: boolean): AudioBuffer {
-  const len = c.sampleRate * 4;
-  const buf = c.createBuffer(1, len, c.sampleRate);
-  const data = buf.getChannelData(0);
-  let last = 0;
-  for (let i = 0; i < len; i++) {
-    const white = Math.random() * 2 - 1;
-    if (brown) {
-      last = (last + 0.02 * white) / 1.02;
-      data[i] = last * 3.5;
-    } else {
-      data[i] = white;
-    }
-  }
-  return buf;
-}
-
-export type Soundscape = "rain" | "ocean" | "brown" | "white";
-
-/** A single looping ambient sound, with a smooth fade in/out. */
-export class SynthSound {
-  private c: AudioContext;
-  private master: GainNode;
-  private parts: AudioScheduledSourceNode[] = [];
-  private lfo: OscillatorNode | null = null;
-
-  constructor() {
-    const c = getCtx();
-    if (!c) throw new Error("No AudioContext");
-    this.c = c;
-    this.master = c.createGain();
-    this.master.gain.value = 0;
-    this.master.connect(c.destination);
-  }
-
-  start(type: Soundscape, volume: number) {
-    resumeAudio();
-    const c = this.c;
-    const src = c.createBufferSource();
-    src.buffer = noiseBuffer(c, type !== "white");
-    src.loop = true;
-
-    let node: AudioNode = src;
-
-    if (type === "rain") {
-      const hp = c.createBiquadFilter();
-      hp.type = "highpass";
-      hp.frequency.value = 800;
-      const bp = c.createBiquadFilter();
-      bp.type = "bandpass";
-      bp.frequency.value = 1400;
-      bp.Q.value = 0.4;
-      src.connect(hp);
-      hp.connect(bp);
-      node = bp;
-    } else if (type === "ocean") {
-      const lp = c.createBiquadFilter();
-      lp.type = "lowpass";
-      lp.frequency.value = 600;
-      src.connect(lp);
-      // slow swell to mimic waves
-      const lfo = c.createOscillator();
-      const lfoGain = c.createGain();
-      lfo.frequency.value = 0.12;
-      lfoGain.gain.value = 0.5;
-      const swell = c.createGain();
-      swell.gain.value = 0.5;
-      lfo.connect(lfoGain);
-      lfoGain.connect(swell.gain);
-      lp.connect(swell);
-      lfo.start();
-      this.lfo = lfo;
-      node = swell;
-    }
-
-    node.connect(this.master);
-    src.start();
-    this.parts.push(src);
-    // fade in
-    const now = c.currentTime;
-    this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setValueAtTime(this.master.gain.value, now);
-    this.master.gain.linearRampToValueAtTime(volume, now + 0.4);
-  }
-
-  setVolume(v: number) {
-    const now = this.c.currentTime;
-    this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setValueAtTime(this.master.gain.value, now);
-    this.master.gain.linearRampToValueAtTime(v, now + 0.1);
-  }
-
-  stop() {
-    const now = this.c.currentTime;
-    this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setValueAtTime(this.master.gain.value, now);
-    this.master.gain.linearRampToValueAtTime(0, now + 0.3);
-    const parts = this.parts;
-    const lfo = this.lfo;
-    setTimeout(() => {
-      parts.forEach((p) => {
-        try {
-          p.stop();
-        } catch {
-          /* already stopped */
-        }
-      });
-      try {
-        lfo?.stop();
-      } catch {
-        /* already stopped */
-      }
-    }, 350);
-    this.parts = [];
-    this.lfo = null;
-  }
-}
