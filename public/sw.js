@@ -1,5 +1,5 @@
-// Minimal offline-capable service worker for the Pomodoro PWA.
-const CACHE = "pomofocus-v1";
+// Minimal offline-capable service worker for the Tomo PWA.
+const CACHE = "tomo-v1";
 
 // Pre-cache the app shell so it opens offline after the first visit.
 self.addEventListener("install", (event) => {
@@ -43,7 +43,9 @@ self.addEventListener("fetch", (event) => {
     caches.match(request).then((cached) => {
       if (cached) return cached;
       return fetch(request).then((res) => {
-        if (res.ok && res.type === "basic") {
+        // Only cache complete (200) same-origin responses — never partial
+        // 206 range responses (e.g. streamed audio), which can't be replayed.
+        if (res.status === 200 && res.type === "basic") {
           const copy = res.clone();
           caches.open(CACHE).then((cache) => cache.put(request, copy));
         }

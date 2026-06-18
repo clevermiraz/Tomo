@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Pomofocus — Pomodoro Timer",
-    short_name: "Pomofocus",
+    name: "Tomo — Pomodoro Focus Timer",
+    short_name: "Tomo",
     description:
-      "A simple, modern Pomodoro timer to help you focus, beat procrastination, and get more done.",
+      "Tomo is your focus friend — a simple, modern Pomodoro timer with focus sounds to help you concentrate, beat procrastination, and get more done.",
     start_url: "/",
     display: "standalone",
     orientation: "portrait",

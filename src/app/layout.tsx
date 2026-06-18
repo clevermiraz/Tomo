@@ -9,15 +9,15 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  applicationName: "Pomofocus",
-  title: "Pomofocus — Pomodoro Timer",
+  applicationName: "Tomo",
+  title: "Tomo — Pomodoro Focus Timer",
   description:
-    "A simple, modern Pomodoro timer to help you focus, beat procrastination, and get more done.",
+    "Tomo is your focus friend — a simple, modern Pomodoro timer with focus sounds to help you concentrate, beat procrastination, and get more done.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Pomofocus",
+    title: "Tomo",
   },
   icons: {
     icon: "/icon.svg",

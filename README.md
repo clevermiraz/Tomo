@@ -1,6 +1,8 @@
-# 🍅 Pomofocus — Pomodoro Timer
+# 🍅 Tomo — Your Focus Friend
 
-A simple, modern **Pomodoro timer** built as an installable Progressive Web App (PWA). Focus, take breaks, and get more done — with a clean, 3D-inspired interface that works offline and installs to your home screen like a native app.
+**Tomo** is a simple, modern **Pomodoro focus timer** built as an installable Progressive Web App (PWA). Focus, take breaks, and get more done — with calming focus sounds, a clean 3D-inspired interface, a built-in blog, and full offline support.
+
+> _Tomo (友) means "friend" in Japanese — and it's the first syllables of_ **toma**_to, the origin of the Pomodoro Technique._
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![React](https://img.shields.io/badge/React-19-149eca?logo=react)
@@ -12,14 +14,15 @@ A simple, modern **Pomodoro timer** built as an installable Progressive Web App 
 
 ## ✨ Features
 
-- ⏱️ **Three modes** — Focus (25 min), Short Break (5 min), and Long Break (15 min)
-- 🔄 **Auto-cycling** — automatically flows into a break after focusing, and into a long break every 4th session
-- 🎨 **Modern 3D UI** — glassmorphism card, glowing circular progress ring, pressable 3D buttons, and an ambient animated background that retints per mode
-- 🔔 **Gentle chime** — a soft Web Audio tone signals when a session ends (no audio files needed)
-- 📊 **Session counter** — tracks how many focus sessions you've completed
-- 🪟 **Live tab title** — see the countdown right in your browser tab
-- 📱 **Installable PWA** — add it to your home screen or desktop and use it offline
-- 🎯 **No accounts, no tracking, no clutter** — it just works
+- ⏱️ **Three modes** — Focus, Short Break, and Long Break, with auto-cycling between them
+- ⚙️ **Fully customizable** — set your own focus/break lengths, long-break interval, auto-start, and more (saved to your device)
+- 🎵 **Focus sounds** — synthesized **Rain, Ocean, Brown & White noise** plus royalty-free **lofi & ambient music**, with optional "auto-play during focus, pause on breaks"
+- 🔔 **Smart audio cues** — distinct chimes for focus-end vs. break-end, plus an optional ticking clock
+- 🎨 **Modern 3D UI** — glassmorphism, a glowing progress ring, pressable buttons, and an ambient background that retints per mode
+- 📊 **Daily session counter** — tracks how many focus sessions you've completed today
+- 📝 **Built-in blog** — 7 articles on the Pomodoro Technique, productivity, focus, and discipline
+- 📱 **Installable PWA** — add it to your home screen or desktop and use it completely offline
+- 🎯 **No accounts, no tracking** — everything stays on your device
 
 ## 🛠️ Tech Stack
 
@@ -29,7 +32,8 @@ A simple, modern **Pomodoro timer** built as an installable Progressive Web App 
 | **UI** | [React 19](https://react.dev) + [Tailwind CSS 4](https://tailwindcss.com) |
 | **Language** | [TypeScript](https://www.typescriptlang.org) |
 | **Font** | [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) via `next/font` |
-| **PWA** | Web App Manifest + a minimal offline-first service worker |
+| **Audio** | Web Audio API (synthesized soundscapes) + bundled MP3s |
+| **PWA** | Web App Manifest + an offline-first service worker |
 
 ## 🚀 Getting Started
 
@@ -41,10 +45,6 @@ A simple, modern **Pomodoro timer** built as an installable Progressive Web App 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd "Pomodoro Timer"
-
 # Install dependencies
 npm install
 
@@ -63,9 +63,9 @@ npm start       # serve the production build
 
 ## 📲 Installing as an App
 
-Because this is a PWA, you can install it on any device:
+Because Tomo is a PWA, you can install it on any device:
 
-- **Desktop (Chrome / Edge):** click the install icon in the address bar.
+- **Desktop (Chrome / Edge):** click the install icon in the address bar (Tomo also shows an "Install" banner on first visit).
 - **Android:** tap the menu → **Add to Home screen**.
 - **iOS (Safari):** tap the **Share** button → **Add to Home Screen**.
 
@@ -76,18 +76,22 @@ Because this is a PWA, you can install it on any device:
 ```
 .
 ├── public/
-│   ├── sw.js                 # Service worker (offline support)
-│   ├── icon.svg              # App logo (source)
-│   ├── icon-192.png          # PWA icon
-│   ├── icon-512.png          # PWA icon
-│   └── icon-maskable.png     # Maskable PWA icon
+│   ├── sw.js                  # Service worker (offline support)
+│   ├── icon.svg / *.png       # App + PWA icons
+│   └── sounds/                # Royalty-free focus music (MP3)
 └── src/
-    └── app/
-        ├── layout.tsx        # Root layout, fonts & PWA metadata
-        ├── page.tsx          # The Pomodoro timer (UI + logic)
-        ├── manifest.ts       # Web App Manifest
-        ├── service-worker.tsx# Registers the service worker
-        └── globals.css       # Theme tokens & 3D styling
+    ├── app/
+    │   ├── layout.tsx         # Root layout, fonts & PWA metadata
+    │   ├── page.tsx           # The Pomodoro timer
+    │   ├── manifest.ts        # Web App Manifest
+    │   ├── service-worker.tsx # Registers the service worker
+    │   ├── globals.css        # Theme tokens & 3D styling
+    │   ├── components/        # SettingsModal, SoundPanel, InstallPrompt, SiteHeader
+    │   └── blog/              # Blog index, post pages & content
+    └── lib/
+        ├── audio.ts           # Web Audio alarms, ticks & soundscapes
+        ├── settings.ts        # Settings type & defaults
+        └── useLocalStorage.ts # Persistence hook
 ```
 
 ## 🍅 How the Pomodoro Technique Works
@@ -96,7 +100,7 @@ Because this is a PWA, you can install it on any device:
 2. Take a **5-minute short break**.
 3. Repeat. After **4 focus sessions**, take a longer **15-minute break**.
 
-This app handles the cycling for you — just press **Start**.
+Tomo handles the cycling for you — just press **Start**. Read more in the in-app [blog](/blog).
 
 ## 📦 Deployment
 
@@ -106,12 +110,25 @@ The easiest way to deploy is with [Vercel](https://vercel.com/new) (the creators
 2. Import it into Vercel.
 3. Deploy — no configuration needed.
 
-You'll get HTTPS out of the box, which means the PWA install prompt works immediately.
+You'll get HTTPS out of the box, so the PWA install prompt works immediately.
+
+## 🎵 Audio Credits
+
+The bundled music is royalty-free / public-domain and free for commercial use:
+
+- **Lofi Study** — [Pixabay Music](https://pixabay.com/music/) (Pixabay Content License, no attribution required)
+- **Meditation** & **Wholesome Calm** — by **Kevin MacLeod** ([incompetech.com](https://incompetech.com)), licensed under [Creative Commons: By Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+Rain, Ocean, Brown noise and White noise are generated in-browser with the Web Audio API (no files).
+
+**Streamed (not bundled):** *"Muse — Tide"* plays via SoundCloud's official embed player
+([Focus Music - Muse from Tide app by Meet Malde](https://soundcloud.com/meet-malde/focus-music-muse-from-tide-app)).
+It streams from SoundCloud (requires an internet connection) and remains the rights-holder's content — no audio file is copied into this project.
 
 ## 📄 License
 
-Released under the [MIT License](LICENSE). Feel free to use, modify, and share.
+Released under the [MIT License](LICENSE). Music tracks retain their respective licenses (see Audio Credits).
 
 ---
 
-<p align="center">Made with 🍅 and focus.</p>
+<p align="center">Made with 🍅 and focus — <strong>Tomo, your focus friend.</strong></p>
