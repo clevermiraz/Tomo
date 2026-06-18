@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
 import { getPost, POSTS, type Block } from "../posts";
 
 export function generateStaticParams() {
@@ -77,9 +78,9 @@ export default async function PostPage({
   if (!post) notFound();
 
   return (
-    <>
+    <div className="flex min-h-dvh flex-col">
       <SiteHeader />
-      <main className="relative z-10 mx-auto max-w-2xl px-5 pb-20 pt-28">
+      <main className="relative z-10 mx-auto w-full max-w-2xl flex-1 px-5 pb-20 pt-28">
         <Link
           href="/blog"
           className="mb-8 inline-block text-sm text-muted transition-colors hover:text-fg"
@@ -112,6 +113,7 @@ export default async function PostPage({
           </Link>
         </div>
       </main>
-    </>
+      <SiteFooter />
+    </div>
   );
 }

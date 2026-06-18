@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 import { POSTS } from "./posts";
 
 export const metadata: Metadata = {
@@ -11,9 +12,9 @@ export const metadata: Metadata = {
 
 export default function BlogIndex() {
   return (
-    <>
+    <div className="flex min-h-dvh flex-col">
       <SiteHeader />
-      <main className="relative z-10 mx-auto max-w-3xl px-5 pb-20 pt-28">
+      <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 px-5 pb-20 pt-28">
         <header className="mb-12 text-center">
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.25em] text-faint">
             The Tomo Journal
@@ -64,6 +65,7 @@ export default function BlogIndex() {
           </Link>
         </div>
       </main>
-    </>
+      <SiteFooter />
+    </div>
   );
 }

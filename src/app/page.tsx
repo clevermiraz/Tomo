@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import SiteHeader from "./components/SiteHeader";
+import SiteFooter from "./components/SiteFooter";
 import SettingsModal from "./components/SettingsModal";
 import SoundPanel, {
   DEFAULT_TRACK_ID,
@@ -114,8 +115,9 @@ export default function Home() {
     <>
       <SiteHeader />
 
-      <main className="relative z-10 flex min-h-dvh flex-col items-center justify-center px-5 py-24">
-        <header className="z-10 mb-6 text-center">
+      <div className="flex min-h-dvh flex-col">
+        <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 py-24">
+          <header className="z-10 mb-6 text-center">
           <h1 className="text-3xl font-bold tracking-tight">Tomo</h1>
           <p className="mt-1.5 text-sm text-muted">Your focus friend</p>
         </header>
@@ -140,10 +142,12 @@ export default function Home() {
           ))}
         </div>
 
-        {tool === "focus" && <FocusTimer {...toolProps} />}
-        {tool === "nap" && <QuickNap {...toolProps} />}
-        {tool === "breathe" && <Breathwork {...toolProps} />}
-      </main>
+          {tool === "focus" && <FocusTimer {...toolProps} />}
+          {tool === "nap" && <QuickNap {...toolProps} />}
+          {tool === "breathe" && <Breathwork {...toolProps} />}
+        </main>
+        <SiteFooter />
+      </div>
 
       <SettingsModal
         open={settingsOpen}

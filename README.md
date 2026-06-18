@@ -121,9 +121,8 @@ The bundled music is royalty-free / public-domain and free for commercial use:
 
 Rain, Ocean, Brown noise and White noise are generated in-browser with the Web Audio API (no files).
 
-**Streamed (not bundled):** *"Muse — Tide"* plays via SoundCloud's official embed player
-([Focus Music - Muse from Tide app by Meet Malde](https://soundcloud.com/meet-malde/focus-music-muse-from-tide-app)).
-It streams from SoundCloud (requires an internet connection) and remains the rights-holder's content — no audio file is copied into this project.
+> **Note on `muse.mp3`:** this track was added locally by the project owner. Ensure you have the
+> rights to distribute any audio you bundle in `public/sounds/` before deploying publicly.
 
 ## 📄 License
 
