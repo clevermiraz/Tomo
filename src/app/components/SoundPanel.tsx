@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
+import Sheet from "./Sheet";
 import { SynthSound, type Soundscape } from "@/lib/audio";
 
 type Track =
@@ -162,65 +164,50 @@ export default function SoundPanel({
 
   useEffect(() => () => stop(), []);
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={onClose} />
-      <div className="surface relative z-10 max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-3xl p-5 pb-7 sm:rounded-3xl sm:p-6">
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold">Focus Sounds</h2>
-            <p className="text-xs text-muted">Tune out the noise, tune into focus</p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="press grid h-10 w-10 place-items-center rounded-full bg-surface2 text-muted"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-          {TRACKS.map((t) => {
-            const active = activeId === t.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => toggle(t)}
-                className={`press flex min-h-[92px] flex-col items-center justify-center gap-1 rounded-2xl border p-3 text-center ${
-                  active ? "border-transparent text-white" : "border-border bg-surface2 text-fg"
-                }`}
-                style={
-                  active
-                    ? { background: "linear-gradient(180deg, var(--accent-soft), var(--accent))" }
-                    : undefined
-                }
-              >
-                <span className="text-2xl leading-none">{t.icon}</span>
-                <span className="truncate text-sm font-semibold">{t.name}</span>
-                <span className={`truncate text-xs ${active ? "text-white/80" : "text-faint"}`}>
-                  {active ? "Playing" : t.vibe}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        <label className="mt-4 flex items-center justify-between rounded-2xl bg-surface2 p-3.5">
-          <span className="text-sm font-medium">
-            Auto-play during focus
-            <span className="block text-xs text-faint">Pauses on breaks</span>
-          </span>
-          <input
-            type="checkbox"
-            checked={autoplayFocus}
-            onChange={(e) => onAutoplayChange(e.target.checked)}
-            className="h-5 w-5 accent-[var(--accent)]"
-          />
-        </label>
+    <Sheet open={open} onClose={onClose} title="Focus Sounds" subtitle="Tune out the noise, tune into focus">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+        {TRACKS.map((t, i) => {
+          const active = activeId === t.id;
+          return (
+            <motion.button
+              key={t.id}
+              onClick={() => toggle(t)}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.025, duration: 0.18 }}
+              whileTap={{ scale: 0.96 }}
+              className={`flex min-h-23 flex-col items-center justify-center gap-1 rounded-2xl border p-3 text-center ${
+                active ? "border-transparent text-white" : "border-border bg-surface2 text-fg"
+              }`}
+              style={
+                active
+                  ? { background: "linear-gradient(180deg, var(--accent-soft), var(--accent))" }
+                  : undefined
+              }
+            >
+              <span className="text-2xl leading-none">{t.icon}</span>
+              <span className="truncate text-sm font-semibold">{t.name}</span>
+              <span className={`truncate text-xs ${active ? "text-white/80" : "text-faint"}`}>
+                {active ? "Playing" : t.vibe}
+              </span>
+            </motion.button>
+          );
+        })}
       </div>
-    </div>
+
+      <label className="mt-4 flex items-center justify-between rounded-2xl bg-surface2 p-3.5">
+        <span className="text-sm font-medium">
+          Auto-play during focus
+          <span className="block text-xs text-faint">Pauses on breaks</span>
+        </span>
+        <input
+          type="checkbox"
+          checked={autoplayFocus}
+          onChange={(e) => onAutoplayChange(e.target.checked)}
+          className="h-5 w-5 accent-accent"
+        />
+      </label>
+    </Sheet>
   );
 }

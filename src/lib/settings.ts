@@ -9,6 +9,7 @@ export interface Settings {
   ticking: boolean; // ticking clock during focus
   autoplayFocus: boolean; // auto-play focus sounds during focus, pause on breaks
   defaultMusic: boolean; // start the default focus music when the timer starts
+  dailyGoal: number; // focus sessions per day target
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -22,4 +23,5 @@ export const DEFAULT_SETTINGS: Settings = {
   ticking: false,
   autoplayFocus: false,
   defaultMusic: true,
+  dailyGoal: 4,
 };

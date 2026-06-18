@@ -12,6 +12,12 @@ export interface ToolProps {
   miniPlayer: ReactNode;
   /** Call when a session begins: resumes audio and starts default music. */
   onStart: () => void;
+  /** Called when a focus session completes (Focus Garden). */
+  onFocusComplete: (minutes: number) => void;
+  /** Focus sessions completed today. */
+  todayCount: number;
+  /** Current daily streak. */
+  streak: number;
 }
 
 /** Apply a tool/mode accent to the global CSS variables. */

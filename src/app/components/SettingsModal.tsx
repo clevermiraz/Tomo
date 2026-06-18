@@ -1,5 +1,7 @@
 "use client";
 
+import { Minus, Plus } from "lucide-react";
+import Sheet from "./Sheet";
 import { DEFAULT_SETTINGS, type Settings } from "@/lib/settings";
 
 function Stepper({
@@ -25,9 +27,9 @@ function Stepper({
         <button
           onClick={() => onChange(clamp(value - 1))}
           aria-label={`Decrease ${label}`}
-          className="press grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-lg font-bold"
+          className="press grid h-8 w-8 place-items-center rounded-full border border-border bg-surface"
         >
-          −
+          <Minus size={15} />
         </button>
         <span className="tabular w-14 text-center text-sm font-semibold">
           {value}
@@ -36,9 +38,9 @@ function Stepper({
         <button
           onClick={() => onChange(clamp(value + 1))}
           aria-label={`Increase ${label}`}
-          className="press grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-lg font-bold"
+          className="press grid h-8 w-8 place-items-center rounded-full border border-border bg-surface"
         >
-          +
+          <Plus size={15} />
         </button>
       </div>
     </div>
@@ -66,7 +68,7 @@ function Toggle({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-5 w-5 accent-[var(--accent)]"
+        className="h-5 w-5 accent-accent"
       />
     </label>
   );
@@ -83,95 +85,82 @@ export default function SettingsModal({
   settings: Settings;
   onChange: (s: Settings) => void;
 }) {
-  if (!open) return null;
   const set = (patch: Partial<Settings>) => onChange({ ...settings, ...patch });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={onClose} />
-      <div className="surface relative z-10 max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-3xl p-6 sm:rounded-3xl">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Settings</h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="press grid h-9 w-9 place-items-center rounded-full bg-surface2 text-muted"
-          >
-            ✕
-          </button>
-        </div>
-
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-faint">
-          Timer (minutes)
-        </p>
-        <div className="space-y-2.5">
-          <Stepper label="Focus" value={settings.focus} min={1} max={90} onChange={(v) => set({ focus: v })} />
-          <Stepper label="Short break" value={settings.short} min={1} max={60} onChange={(v) => set({ short: v })} />
-          <Stepper label="Long break" value={settings.long} min={1} max={60} onChange={(v) => set({ long: v })} />
-          <Stepper
-            label="Long break after"
-            suffix="sessions"
-            value={settings.longBreakInterval}
-            min={2}
-            max={8}
-            onChange={(v) => set({ longBreakInterval: v })}
-          />
-        </div>
-
-        <p className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wider text-faint">
-          Behaviour
-        </p>
-        <div className="space-y-2.5">
-          <Toggle
-            label="Start music with timer"
-            hint="Play the default focus music on Start"
-            checked={settings.defaultMusic}
-            onChange={(v) => set({ defaultMusic: v })}
-          />
-          <Toggle
-            label="Auto-start next timer"
-            hint="Roll straight into the next session"
-            checked={settings.autoStart}
-            onChange={(v) => set({ autoStart: v })}
-          />
-          <Toggle
-            label="Sound alerts"
-            hint="Chime when a session ends"
-            checked={settings.soundOn}
-            onChange={(v) => set({ soundOn: v })}
-          />
-          <Toggle
-            label="Ticking clock"
-            hint="Soft tick every second while focusing"
-            checked={settings.ticking}
-            onChange={(v) => set({ ticking: v })}
-          />
-          <div className="rounded-2xl bg-surface2 p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium">Volume</span>
-              <span className="tabular text-sm text-muted">
-                {Math.round(settings.volume * 100)}%
-              </span>
-            </div>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={settings.volume}
-              onChange={(e) => set({ volume: Number(e.target.value) })}
-              className="w-full accent-[var(--accent)]"
-            />
-          </div>
-        </div>
-
-        <button
-          onClick={() => onChange({ ...DEFAULT_SETTINGS })}
-          className="press mt-5 w-full rounded-2xl bg-surface2 py-3 text-sm font-medium text-muted"
-        >
-          Reset to defaults
-        </button>
+    <Sheet open={open} onClose={onClose} title="Settings">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-faint">Timer (minutes)</p>
+      <div className="space-y-2.5">
+        <Stepper label="Focus" value={settings.focus} min={1} max={90} onChange={(v) => set({ focus: v })} />
+        <Stepper label="Short break" value={settings.short} min={1} max={60} onChange={(v) => set({ short: v })} />
+        <Stepper label="Long break" value={settings.long} min={1} max={60} onChange={(v) => set({ long: v })} />
+        <Stepper
+          label="Long break after"
+          suffix="sessions"
+          value={settings.longBreakInterval}
+          min={2}
+          max={8}
+          onChange={(v) => set({ longBreakInterval: v })}
+        />
+        <Stepper
+          label="Daily goal"
+          suffix="sessions"
+          value={settings.dailyGoal}
+          min={1}
+          max={16}
+          onChange={(v) => set({ dailyGoal: v })}
+        />
       </div>
-    </div>
+
+      <p className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wider text-faint">Behaviour</p>
+      <div className="space-y-2.5">
+        <Toggle
+          label="Start music with timer"
+          hint="Play the default focus music on Start"
+          checked={settings.defaultMusic}
+          onChange={(v) => set({ defaultMusic: v })}
+        />
+        <Toggle
+          label="Auto-start next timer"
+          hint="Roll straight into the next session"
+          checked={settings.autoStart}
+          onChange={(v) => set({ autoStart: v })}
+        />
+        <Toggle
+          label="Sound alerts"
+          hint="Chime when a session ends"
+          checked={settings.soundOn}
+          onChange={(v) => set({ soundOn: v })}
+        />
+        <Toggle
+          label="Ticking clock"
+          hint="Soft tick every second while focusing"
+          checked={settings.ticking}
+          onChange={(v) => set({ ticking: v })}
+        />
+        <div className="rounded-2xl bg-surface2 p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">Volume</span>
+            <span className="tabular text-sm text-muted">{Math.round(settings.volume * 100)}%</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={settings.volume}
+            onChange={(e) => set({ volume: Number(e.target.value) })}
+            className="w-full accent-accent"
+          />
+        </div>
+      </div>
+
+      <button
+        onClick={() => onChange({ ...DEFAULT_SETTINGS })}
+        className="press mt-5 w-full rounded-2xl bg-surface2 py-3 text-sm font-medium text-muted"
+      >
+        Reset to defaults
+      </button>
+    </Sheet>
   );
 }

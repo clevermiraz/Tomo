@@ -112,6 +112,43 @@ body {
   letter-spacing: -0.02em;
 }
 
+/* Slim, themed scrollbar for scrollable panels */
+.scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  scrollbar-gutter: stable;
+}
+.scroll-area::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-area::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.scroll-area::-webkit-scrollbar-thumb:hover {
+  background: var(--faint);
+  background-clip: padding-box;
+}
+
+/* Floating particles for the immersive breathing scene */
+@keyframes drift {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  20% { opacity: 0.7; }
+  80% { opacity: 0.5; }
+  100% { transform: translateY(-60px) translateX(8px); opacity: 0; }
+}
+.particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.7);
+  animation: drift linear infinite;
+}
+
 /* Animated equalizer bars for the now-playing button */
 @keyframes eq {
   0%, 100% { transform: scaleY(0.4); }

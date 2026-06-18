@@ -1,7 +1,14 @@
 import Link from "next/link";
+import { Sprout } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
-export default function SiteHeader() {
+export default function SiteHeader({
+  onOpenGarden,
+  streak,
+}: {
+  onOpenGarden?: () => void;
+  streak?: number;
+}) {
   return (
     <header className="absolute inset-x-0 top-0 z-40">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
@@ -27,6 +34,16 @@ export default function SiteHeader() {
           >
             Blog
           </Link>
+          {onOpenGarden ? (
+            <button
+              onClick={onOpenGarden}
+              aria-label="Focus garden"
+              className="press flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1.5 text-fg/80 hover:text-fg"
+            >
+              <Sprout size={16} className="text-accent" />
+              {streak ? <span className="text-xs font-bold">{streak}🔥</span> : null}
+            </button>
+          ) : null}
           <ThemeToggle />
         </div>
       </nav>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Settings, RotateCcw } from "lucide-react";
 import TimerRing from "./TimerRing";
 import Segmented from "./Segmented";
 import { applyTheme, type ToolProps } from "@/lib/tools";
@@ -88,9 +89,9 @@ export default function QuickNap({
           <button
             onClick={onOpenSettings}
             aria-label="Settings"
-            className="press grid h-10 w-10 place-items-center rounded-full bg-surface2 text-lg text-muted hover:text-fg"
+            className="press grid h-10 w-10 place-items-center rounded-full bg-surface2 text-muted hover:text-fg"
           >
-            ⚙
+            <Settings size={18} />
           </button>
         </div>
 
@@ -121,17 +122,9 @@ export default function QuickNap({
           <button
             onClick={reset}
             aria-label="Reset nap"
-            className="press grid h-[56px] w-[56px] place-items-center rounded-full bg-surface2 text-fg"
+            className="press grid h-14 w-14 place-items-center rounded-full bg-surface2 text-fg"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <RotateCcw size={20} />
           </button>
         </div>
 

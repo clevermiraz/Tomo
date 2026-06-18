@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Settings, RotateCcw } from "lucide-react";
 import TimerRing from "./TimerRing";
 import Segmented from "./Segmented";
-import { useLocalStorage } from "@/lib/useLocalStorage";
 import { applyTheme, type ToolProps } from "@/lib/tools";
 import { playAlarm, playTick } from "@/lib/audio";
 
@@ -18,16 +18,16 @@ const MODE_THEME: Record<
   long: { label: "Long Break", accent: "#6d8bff", soft: "#9db1ff", glow: "109, 139, 255" },
 };
 
-const today = () => new Date().toISOString().slice(0, 10);
-
 export default function FocusTimer({
   settings,
   onOpenSettings,
   soundControls,
   miniPlayer,
   onStart,
+  onFocusComplete,
+  todayCount,
+  streak,
 }: ToolProps) {
-  const [stats, setStats] = useLocalStorage("tomo-stats", { day: "", count: 0 });
   const [mode, setMode] = useState<Mode>("focus");
   const [secondsLeft, setSecondsLeft] = useState(settings.focus * 60);
   const [running, setRunning] = useState(false);
@@ -40,11 +40,6 @@ export default function FocusTimer({
     [settings]
   );
   const total = minutesFor(mode) * 60;
-
-  useEffect(() => {
-    if (stats.day !== today()) setStats({ day: today(), count: 0 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     const t = MODE_THEME[mode];
@@ -84,9 +79,9 @@ export default function FocusTimer({
         if (settings.soundOn)
           playAlarm(mode === "focus" ? "focusEnd" : "breakEnd", settings.volume);
         if (mode === "focus") {
-          const count = (stats.day === today() ? stats.count : 0) + 1;
-          setStats({ day: today(), count });
-          switchMode(count % settings.longBreakInterval === 0 ? "long" : "short", settings.autoStart);
+          onFocusComplete(settings.focus);
+          const nextCount = todayCount + 1;
+          switchMode(nextCount % settings.longBreakInterval === 0 ? "long" : "short", settings.autoStart);
         } else {
           switchMode("focus", settings.autoStart);
         }
@@ -137,7 +132,6 @@ export default function FocusTimer({
   const minutes = Math.floor(secondsLeft / 60).toString().padStart(2, "0");
   const seconds = (secondsLeft % 60).toString().padStart(2, "0");
   const progress = total === 0 ? 0 : (total - secondsLeft) / total;
-  const count = stats.day === today() ? stats.count : 0;
 
   return (
     <>
@@ -150,9 +144,9 @@ export default function FocusTimer({
           <button
             onClick={onOpenSettings}
             aria-label="Settings"
-            className="press grid h-10 w-10 place-items-center rounded-full bg-surface2 text-lg text-muted hover:text-fg"
+            className="press grid h-10 w-10 place-items-center rounded-full bg-surface2 text-muted hover:text-fg"
           >
-            ⚙
+            <Settings size={18} />
           </button>
         </div>
 
@@ -183,27 +177,25 @@ export default function FocusTimer({
           <button
             onClick={reset}
             aria-label="Reset timer"
-            className="press grid h-[56px] w-[56px] place-items-center rounded-full bg-surface2 text-fg"
+            className="press grid h-14 w-14 place-items-center rounded-full bg-surface2 text-fg"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <RotateCcw size={20} />
           </button>
         </div>
 
         {miniPlayer}
       </div>
 
-      <p className="z-10 mt-7 text-sm text-muted">
-        <span className="font-bold text-fg">{count}</span> focus
-        {count === 1 ? " session" : " sessions"} completed today
-      </p>
+      <div className="z-10 mt-7 flex items-center gap-5 text-sm text-muted">
+        <span>
+          <span className="font-bold text-fg">{todayCount}</span> today
+        </span>
+        <span className="text-faint">·</span>
+        <span className="flex items-center gap-1">
+          <span aria-hidden>🔥</span>
+          <span className="font-bold text-fg">{streak}</span> day streak
+        </span>
+      </div>
     </>
   );
 }

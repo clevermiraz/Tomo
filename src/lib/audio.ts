@@ -82,6 +82,34 @@ export function playTick(volume = 1) {
   osc.stop(t + 0.06);
 }
 
+/** A soft tone that rises on inhale and falls on exhale, to guide breathing. */
+export function playBreathCue(kind: "in" | "out", durationSec: number, volume = 1) {
+  const c = getCtx();
+  if (!c) return;
+  resumeAudio();
+  const now = c.currentTime + 0.01;
+  const dur = Math.max(1.2, durationSec);
+  const osc = c.createOscillator();
+  const gain = c.createGain();
+  const lp = c.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 900;
+  osc.connect(lp);
+  lp.connect(gain);
+  gain.connect(c.destination);
+  osc.type = "sine";
+  const f0 = kind === "in" ? 196 : 294;
+  const f1 = kind === "in" ? 294 : 196;
+  osc.frequency.setValueAtTime(f0, now);
+  osc.frequency.linearRampToValueAtTime(f1, now + dur);
+  const peak = 0.13 * volume;
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(peak, now + dur * 0.3);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+  osc.start(now);
+  osc.stop(now + dur + 0.05);
+}
+
 function noiseBuffer(c: AudioContext, brown: boolean): AudioBuffer {
   const len = c.sampleRate * 4;
   const buf = c.createBuffer(1, len, c.sampleRate);
