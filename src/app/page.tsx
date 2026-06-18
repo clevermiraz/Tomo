@@ -13,6 +13,7 @@ import SoundPanel, {
 } from "./components/SoundPanel";
 import GardenModal from "./components/GardenModal";
 import PremiumModal from "./components/PremiumModal";
+import ConfirmDialog from "./components/ConfirmDialog";
 import InstallPrompt from "./components/InstallPrompt";
 import FocusTimer from "./components/FocusTimer";
 import QuickNap from "./components/QuickNap";
@@ -46,8 +47,28 @@ export default function Home() {
   const [soundOpen, setSoundOpen] = useState(false);
   const [gardenOpen, setGardenOpen] = useState(false);
   const [premiumOpen, setPremiumOpen] = useState(false);
+  const [toolRunning, setToolRunning] = useState(false);
+  const [pendingTool, setPendingTool] = useState<Tool | null>(null);
   const [sound, setSound] = useState<SoundState>({ activeId: null, name: null, vibe: null, icon: null });
   const [celebrate, setCelebrate] = useState<{ key: number; count: number; streak: number } | null>(null);
+
+  // Switching tools while a timer runs will stop it — warn first.
+  const requestTool = (next: Tool) => {
+    if (next === tool) return;
+    if (toolRunning) setPendingTool(next);
+    else setTool(next);
+  };
+
+  // Warn before closing/refreshing the tab while a timer is running.
+  useEffect(() => {
+    if (!toolRunning) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [toolRunning]);
 
   const soundControls = useRef<SoundControls>({});
 
@@ -151,6 +172,7 @@ export default function Home() {
     todayCount,
     streak,
     active: true,
+    onRunningChange: setToolRunning,
   };
 
   return (
@@ -173,21 +195,14 @@ export default function Home() {
             <Segmented
               items={TOOLS.map((t) => ({ key: t.key, label: t.label }))}
               value={tool}
-              onChange={(k) => setTool(k as Tool)}
+              onChange={(k) => requestTool(k as Tool)}
               containerClassName="surface"
             />
           </div>
 
-          {/* All tools stay mounted so a running timer keeps counting in the background. */}
-          <div className={tool === "focus" ? "flex w-full flex-col items-center" : "hidden"}>
-            <FocusTimer {...toolProps} active={tool === "focus"} />
-          </div>
-          <div className={tool === "nap" ? "flex w-full flex-col items-center" : "hidden"}>
-            <QuickNap {...toolProps} active={tool === "nap"} />
-          </div>
-          <div className={tool === "breathe" ? "flex w-full flex-col items-center" : "hidden"}>
-            <Breathwork {...toolProps} active={tool === "breathe"} />
-          </div>
+          {tool === "focus" && <FocusTimer {...toolProps} />}
+          {tool === "nap" && <QuickNap {...toolProps} />}
+          {tool === "breathe" && <Breathwork {...toolProps} />}
         </main>
         <SiteFooter />
       </div>
@@ -244,6 +259,19 @@ export default function Home() {
         onClose={() => setPremiumOpen(false)}
         active={premium}
         onActivate={() => setPremium(true)}
+        onDeactivate={() => setPremium(false)}
+      />
+      <ConfirmDialog
+        open={pendingTool !== null}
+        title="Timer is running"
+        message="Leaving this tab will stop your current timer. Leave anyway?"
+        confirmLabel="Leave"
+        cancelLabel="Go back"
+        onConfirm={() => {
+          if (pendingTool) setTool(pendingTool);
+          setPendingTool(null);
+        }}
+        onCancel={() => setPendingTool(null)}
       />
       <InstallPrompt />
     </>

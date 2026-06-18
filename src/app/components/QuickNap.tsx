@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Settings, RotateCcw } from "lucide-react";
 import TimerRing from "./TimerRing";
 import Segmented from "./Segmented";
+import ConfirmDialog from "./ConfirmDialog";
 import { applyTheme, type ToolProps } from "@/lib/tools";
 import { playAlarm } from "@/lib/audio";
 
@@ -16,10 +17,12 @@ export default function QuickNap({
   miniPlayer,
   onStart,
   active,
+  onRunningChange,
 }: ToolProps) {
   const [minutesPreset, setMinutesPreset] = useState(20);
   const [secondsLeft, setSecondsLeft] = useState(20 * 60);
   const [running, setRunning] = useState(false);
+  const [pendingPreset, setPendingPreset] = useState<number | null>(null);
   const deadlineRef = useRef<number | null>(null);
 
   const total = minutesPreset * 60;
@@ -28,11 +31,25 @@ export default function QuickNap({
     if (active) applyTheme(NAP_THEME.accent, NAP_THEME.soft, NAP_THEME.glow);
   }, [active]);
 
-  const selectPreset = (m: number) => {
+  useEffect(() => {
+    onRunningChange(running);
+    return () => onRunningChange(false);
+  }, [running, onRunningChange]);
+
+  const switchToPreset = (m: number) => {
     setRunning(false);
     deadlineRef.current = null;
     setMinutesPreset(m);
     setSecondsLeft(m * 60);
+  };
+
+  const selectPreset = (m: number) => {
+    if (m === minutesPreset) return;
+    if (running) {
+      setPendingPreset(m); // warn before stopping the running nap
+      return;
+    }
+    switchToPreset(m);
   };
 
   useEffect(() => {
@@ -136,6 +153,19 @@ export default function QuickNap({
       <p className="z-10 mt-5 max-w-xs text-center text-sm text-muted">
         A 20-minute power nap boosts alertness without grogginess. Tomo wakes you gently.
       </p>
+
+      <ConfirmDialog
+        open={pendingPreset !== null}
+        title="Nap is running"
+        message="Switching will stop your current nap. Switch anyway?"
+        confirmLabel="Switch"
+        cancelLabel="Go back"
+        onConfirm={() => {
+          if (pendingPreset !== null) switchToPreset(pendingPreset);
+          setPendingPreset(null);
+        }}
+        onCancel={() => setPendingPreset(null)}
+      />
     </>
   );
 }

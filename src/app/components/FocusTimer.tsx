@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Settings, RotateCcw } from "lucide-react";
 import TimerRing from "./TimerRing";
 import Segmented from "./Segmented";
+import ConfirmDialog from "./ConfirmDialog";
 import { applyTheme, type ToolProps } from "@/lib/tools";
 import { playAlarm, playTick } from "@/lib/audio";
 
@@ -28,10 +29,12 @@ export default function FocusTimer({
   todayCount,
   streak,
   active,
+  onRunningChange,
 }: ToolProps) {
   const [mode, setMode] = useState<Mode>("focus");
   const [secondsLeft, setSecondsLeft] = useState(settings.focus * 60);
   const [running, setRunning] = useState(false);
+  const [pendingMode, setPendingMode] = useState<Mode | null>(null);
 
   const deadlineRef = useRef<number | null>(null);
   const lastSecondRef = useRef(secondsLeft);
@@ -75,6 +78,12 @@ export default function FocusTimer({
   useEffect(() => {
     soundControls.current.onModeChange?.(mode === "focus" && running);
   }, [mode, running, soundControls]);
+
+  // Report running state so the tool switcher / browser-close can warn.
+  useEffect(() => {
+    onRunningChange(running);
+    return () => onRunningChange(false);
+  }, [running, onRunningChange]);
 
   const switchMode = useCallback(
     (next: Mode, autoStart: boolean) => {
@@ -129,15 +138,32 @@ export default function FocusTimer({
     document.title = `${mm}:${ss} · ${MODE_THEME[mode].label} — Tomo`;
   }, [secondsLeft, mode, active]);
 
-  const selectMode = (next: Mode) => {
-    if (next === mode) return;
-    // Remember where this mode is, pause, then restore the target mode's time.
+  // Switch the displayed mode, preserving each mode's paused time.
+  const switchToMode = (next: Mode) => {
     savedRef.current[mode] = secondsLeft;
     setRunning(false);
     deadlineRef.current = null;
     setMode(next);
     const saved = savedRef.current[next];
     setSecondsLeft(saved > 0 ? saved : minutesFor(next) * 60);
+  };
+
+  // Leave a running session: stop it and reset that mode to full.
+  const leaveToMode = (next: Mode) => {
+    setRunning(false);
+    deadlineRef.current = null;
+    savedRef.current[mode] = minutesFor(mode) * 60;
+    setMode(next);
+    setSecondsLeft(minutesFor(next) * 60);
+  };
+
+  const selectMode = (next: Mode) => {
+    if (next === mode) return;
+    if (running) {
+      setPendingMode(next); // warn before stopping the running timer
+      return;
+    }
+    switchToMode(next);
   };
 
   const toggleRun = () => {
@@ -219,6 +245,19 @@ export default function FocusTimer({
           <span className="font-bold text-fg">{streak}</span> day streak
         </span>
       </div>
+
+      <ConfirmDialog
+        open={pendingMode !== null}
+        title="Timer is running"
+        message="Switching will stop your current timer. Switch anyway?"
+        confirmLabel="Switch"
+        cancelLabel="Go back"
+        onConfirm={() => {
+          if (pendingMode) leaveToMode(pendingMode);
+          setPendingMode(null);
+        }}
+        onCancel={() => setPendingMode(null)}
+      />
     </>
   );
 }
