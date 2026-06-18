@@ -5,6 +5,7 @@ import { Settings, RotateCcw } from "lucide-react";
 import TimerRing from "./TimerRing";
 import Segmented from "./Segmented";
 import ConfirmDialog from "./ConfirmDialog";
+import SessionCompleteModal from "./SessionCompleteModal";
 import { applyTheme, type ToolProps } from "@/lib/tools";
 import { playAlarm, playTick } from "@/lib/audio";
 
@@ -35,6 +36,9 @@ export default function FocusTimer({
   const [secondsLeft, setSecondsLeft] = useState(settings.focus * 60);
   const [running, setRunning] = useState(false);
   const [pendingMode, setPendingMode] = useState<Mode | null>(null);
+  const [completion, setCompletion] = useState<{ kind: "focus" | "break"; nextMode: Mode } | null>(null);
+  const extendingRef = useRef(false);
+  const nextModeRef = useRef<Mode>("short");
 
   const deadlineRef = useRef<number | null>(null);
   const lastSecondRef = useRef(secondsLeft);
@@ -107,14 +111,25 @@ export default function FocusTimer({
 
       if (remaining <= 0) {
         setSecondsLeft(0);
+        setRunning(false);
         savedRef.current[mode] = minutesFor(mode) * 60; // finished mode resets for next time
         if (s.soundOn) playAlarm(mode === "focus" ? "focusEnd" : "breakEnd", s.volume);
+        if (typeof navigator !== "undefined") navigator.vibrate?.([200, 100, 200]);
+
         if (mode === "focus") {
-          onFocusComplete(s.focus);
-          const nextCount = todayCount + 1;
-          switchMode(nextCount % s.longBreakInterval === 0 ? "long" : "short", s.autoStart);
+          if (extendingRef.current) {
+            extendingRef.current = false; // a +5 extension — don't re-count it
+            setCompletion({ kind: "focus", nextMode: nextModeRef.current });
+          } else {
+            onFocusComplete(s.focus);
+            const nextMode = (todayCount + 1) % s.longBreakInterval === 0 ? "long" : "short";
+            nextModeRef.current = nextMode;
+            if (s.autoStart) switchMode(nextMode, true);
+            else setCompletion({ kind: "focus", nextMode });
+          }
         } else {
-          switchMode("focus", s.autoStart);
+          if (s.autoStart) switchMode("focus", true);
+          else setCompletion({ kind: "break", nextMode: "focus" });
         }
         return;
       }
@@ -176,6 +191,19 @@ export default function FocusTimer({
     deadlineRef.current = null;
     savedRef.current[mode] = total;
     setSecondsLeft(total);
+  };
+
+  // Session-complete popup actions.
+  const startNext = () => {
+    if (completion) switchMode(completion.nextMode, true);
+    setCompletion(null);
+  };
+  const extendSession = () => {
+    extendingRef.current = completion?.kind === "focus";
+    deadlineRef.current = null;
+    setSecondsLeft(5 * 60);
+    setRunning(true);
+    setCompletion(null);
   };
 
   const minutes = Math.floor(secondsLeft / 60).toString().padStart(2, "0");
@@ -257,6 +285,15 @@ export default function FocusTimer({
           setPendingMode(null);
         }}
         onCancel={() => setPendingMode(null)}
+      />
+
+      <SessionCompleteModal
+        open={completion !== null}
+        kind={completion?.kind ?? "focus"}
+        nextMode={completion?.nextMode ?? "short"}
+        onStartNext={startNext}
+        onExtend={extendSession}
+        onDismiss={() => setCompletion(null)}
       />
     </>
   );
