@@ -12,6 +12,7 @@ import SoundPanel, {
   type SoundState,
 } from "./components/SoundPanel";
 import GardenModal from "./components/GardenModal";
+import PremiumModal from "./components/PremiumModal";
 import InstallPrompt from "./components/InstallPrompt";
 import FocusTimer from "./components/FocusTimer";
 import QuickNap from "./components/QuickNap";
@@ -39,10 +40,12 @@ const TOOLS: { key: Tool; label: string }[] = [
 export default function Home() {
   const [settings, setSettings] = useLocalStorage<Settings>("tomo-settings", DEFAULT_SETTINGS);
   const [garden, setGarden] = useLocalStorage<GardenData>("tomo-garden", DEFAULT_GARDEN);
+  const [premium, setPremium] = useLocalStorage("tomo-premium", false);
   const [tool, setTool] = useState<Tool>("focus");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [soundOpen, setSoundOpen] = useState(false);
   const [gardenOpen, setGardenOpen] = useState(false);
+  const [premiumOpen, setPremiumOpen] = useState(false);
   const [sound, setSound] = useState<SoundState>({ activeId: null, name: null, vibe: null, icon: null });
   const [celebrate, setCelebrate] = useState<{ key: number; count: number; streak: number } | null>(null);
 
@@ -147,11 +150,17 @@ export default function Home() {
     onFocusComplete,
     todayCount,
     streak,
+    active: true,
   };
 
   return (
     <>
-      <SiteHeader onOpenGarden={() => setGardenOpen(true)} streak={streak} />
+      <SiteHeader
+        onOpenGarden={() => setGardenOpen(true)}
+        streak={streak}
+        onOpenPremium={() => setPremiumOpen(true)}
+        premium={premium}
+      />
 
       <div className="flex min-h-dvh flex-col">
         <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-6 pt-20">
@@ -169,20 +178,16 @@ export default function Home() {
             />
           </div>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={tool}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25 }}
-              className="flex w-full flex-col items-center"
-            >
-              {tool === "focus" && <FocusTimer {...toolProps} />}
-              {tool === "nap" && <QuickNap {...toolProps} />}
-              {tool === "breathe" && <Breathwork {...toolProps} />}
-            </motion.div>
-          </AnimatePresence>
+          {/* All tools stay mounted so a running timer keeps counting in the background. */}
+          <div className={tool === "focus" ? "flex w-full flex-col items-center" : "hidden"}>
+            <FocusTimer {...toolProps} active={tool === "focus"} />
+          </div>
+          <div className={tool === "nap" ? "flex w-full flex-col items-center" : "hidden"}>
+            <QuickNap {...toolProps} active={tool === "nap"} />
+          </div>
+          <div className={tool === "breathe" ? "flex w-full flex-col items-center" : "hidden"}>
+            <Breathwork {...toolProps} active={tool === "breathe"} />
+          </div>
         </main>
         <SiteFooter />
       </div>
@@ -233,6 +238,12 @@ export default function Home() {
         onClose={() => setGardenOpen(false)}
         garden={garden}
         dailyGoal={settings.dailyGoal}
+      />
+      <PremiumModal
+        open={premiumOpen}
+        onClose={() => setPremiumOpen(false)}
+        active={premium}
+        onActivate={() => setPremium(true)}
       />
       <InstallPrompt />
     </>

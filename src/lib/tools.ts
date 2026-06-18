@@ -18,6 +18,8 @@ export interface ToolProps {
   todayCount: number;
   /** Current daily streak. */
   streak: number;
+  /** Whether this tool is the visible one (others stay mounted so timers keep running). */
+  active: boolean;
 }
 
 /** Apply a tool/mode accent to the global CSS variables. */

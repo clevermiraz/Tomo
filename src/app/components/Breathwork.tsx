@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Settings } from "lucide-react";
 import Segmented from "./Segmented";
 import { applyTheme, type ToolProps } from "@/lib/tools";
-import { playBreathCue } from "@/lib/audio";
+import { playAlarm, playBreathCue, resumeAudio } from "@/lib/audio";
 
 type Kind = "in" | "out" | "hold";
 type Phase = { kind: Kind; s: number; scale: number };
@@ -43,6 +43,7 @@ const PATTERNS: Record<string, { name: string; hint: string; phases: Phase[] }> 
 
 const LABEL: Record<Kind, string> = { in: "Inhale", out: "Exhale", hold: "Hold" };
 const THEME = { accent: "#3ecf8e", soft: "#6fe3ab", glow: "62, 207, 142" };
+const DURATIONS = [1, 2, 3, 5]; // minutes
 const HOLD_MS = 1200;
 const RING_R = 150;
 const RING_C = 2 * Math.PI * RING_R;
@@ -70,8 +71,9 @@ function mmss(total: number) {
   return `${m}:${s}`;
 }
 
-export default function Breathwork({ settings, onOpenSettings, miniPlayer, onStart }: ToolProps) {
+export default function Breathwork({ settings, onOpenSettings, miniPlayer, active }: ToolProps) {
   const [patternKey, setPatternKey] = useState<keyof typeof PATTERNS>("box");
+  const [durationMin, setDurationMin] = useState(2);
   const [running, setRunning] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [phaseLeft, setPhaseLeft] = useState(0);
@@ -85,6 +87,7 @@ export default function Breathwork({ settings, onOpenSettings, miniPlayer, onSta
   const phaseIndexRef = useRef(0);
   const sessionStartRef = useRef(0);
   const holdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const targetSec = durationMin * 60;
 
   const pattern = PATTERNS[patternKey];
   const phases = pattern.phases;
@@ -96,8 +99,8 @@ export default function Breathwork({ settings, onOpenSettings, miniPlayer, onSta
   }, []);
 
   useEffect(() => {
-    applyTheme(THEME.accent, THEME.soft, THEME.glow);
-  }, []);
+    if (active) applyTheme(THEME.accent, THEME.soft, THEME.glow);
+  }, [active]);
 
   // Phase machine + breathing tones + per-phase countdown.
   useEffect(() => {
@@ -131,15 +134,22 @@ export default function Breathwork({ settings, onOpenSettings, miniPlayer, onSta
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running, patternKey]);
 
-  // Elapsed timer.
+  // Elapsed timer — auto-ends the session at the chosen duration.
   useEffect(() => {
     if (!running) return;
     sessionStartRef.current = Date.now();
-    const id = setInterval(
-      () => setElapsed(Math.floor((Date.now() - sessionStartRef.current) / 1000)),
-      250
-    );
+    const id = setInterval(() => {
+      const e = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+      if (e >= targetSec) {
+        setElapsed(targetSec);
+        if (settings.soundOn) playAlarm("focusEnd", settings.volume);
+        setRunning(false);
+        return;
+      }
+      setElapsed(e);
+    }, 250);
     return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running]);
 
   // Scroll-lock + Escape while immersive.
@@ -166,7 +176,7 @@ export default function Breathwork({ settings, onOpenSettings, miniPlayer, onSta
   };
 
   const start = () => {
-    onStart();
+    resumeAudio(); // enable breathing tones; no focus music here
     phaseIndexRef.current = 0;
     setPhaseIndex(0);
     setCycles(0);
@@ -202,7 +212,7 @@ export default function Breathwork({ settings, onOpenSettings, miniPlayer, onSta
           </button>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-3">
           <Segmented
             items={(Object.keys(PATTERNS) as (keyof typeof PATTERNS)[]).map((k) => ({
               key: k,
@@ -213,7 +223,15 @@ export default function Breathwork({ settings, onOpenSettings, miniPlayer, onSta
           />
         </div>
 
-        <div className="relative mx-auto flex aspect-square w-full max-w-[200px] items-center justify-center">
+        <div className="mb-6">
+          <Segmented
+            items={DURATIONS.map((m) => ({ key: String(m), label: `${m} min` }))}
+            value={String(durationMin)}
+            onChange={(k) => setDurationMin(Number(k))}
+          />
+        </div>
+
+        <div className="relative mx-auto flex aspect-square w-full max-w-[160px] items-center justify-center">
           <div
             className="absolute h-1/2 w-1/2 rounded-full"
             style={{

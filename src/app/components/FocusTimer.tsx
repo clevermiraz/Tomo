@@ -27,6 +27,7 @@ export default function FocusTimer({
   onFocusComplete,
   todayCount,
   streak,
+  active,
 }: ToolProps) {
   const [mode, setMode] = useState<Mode>("focus");
   const [secondsLeft, setSecondsLeft] = useState(settings.focus * 60);
@@ -40,6 +41,11 @@ export default function FocusTimer({
     short: settings.short * 60,
     long: settings.long * 60,
   });
+  // Latest settings, so the running tick reflects live changes (e.g. toggling the ticking clock).
+  const settingsRef = useRef(settings);
+  useEffect(() => {
+    settingsRef.current = settings;
+  });
 
   const minutesFor = useCallback(
     (m: Mode) => (m === "focus" ? settings.focus : m === "short" ? settings.short : settings.long),
@@ -48,9 +54,10 @@ export default function FocusTimer({
   const total = minutesFor(mode) * 60;
 
   useEffect(() => {
+    if (!active) return;
     const t = MODE_THEME[mode];
     applyTheme(t.accent, t.soft, t.glow);
-  }, [mode]);
+  }, [mode, active]);
 
   useEffect(() => {
     // Changing a duration in Settings resets each mode to its new full length.
@@ -86,30 +93,25 @@ export default function FocusTimer({
     deadlineRef.current = Date.now() + secondsLeft * 1000;
 
     const tick = () => {
+      const s = settingsRef.current; // read live settings every tick
       const remaining = Math.round(((deadlineRef.current ?? 0) - Date.now()) / 1000);
 
       if (remaining <= 0) {
         setSecondsLeft(0);
         savedRef.current[mode] = minutesFor(mode) * 60; // finished mode resets for next time
-        if (settings.soundOn)
-          playAlarm(mode === "focus" ? "focusEnd" : "breakEnd", settings.volume);
+        if (s.soundOn) playAlarm(mode === "focus" ? "focusEnd" : "breakEnd", s.volume);
         if (mode === "focus") {
-          onFocusComplete(settings.focus);
+          onFocusComplete(s.focus);
           const nextCount = todayCount + 1;
-          switchMode(nextCount % settings.longBreakInterval === 0 ? "long" : "short", settings.autoStart);
+          switchMode(nextCount % s.longBreakInterval === 0 ? "long" : "short", s.autoStart);
         } else {
-          switchMode("focus", settings.autoStart);
+          switchMode("focus", s.autoStart);
         }
         return;
       }
 
-      if (
-        settings.ticking &&
-        settings.soundOn &&
-        mode === "focus" &&
-        remaining !== lastSecondRef.current
-      ) {
-        playTick(settings.volume);
+      if (s.ticking && s.soundOn && mode === "focus" && remaining !== lastSecondRef.current) {
+        playTick(s.volume);
       }
       lastSecondRef.current = remaining;
       setSecondsLeft(remaining);
@@ -121,10 +123,11 @@ export default function FocusTimer({
   }, [running]);
 
   useEffect(() => {
+    if (!active) return;
     const mm = Math.floor(secondsLeft / 60).toString().padStart(2, "0");
     const ss = (secondsLeft % 60).toString().padStart(2, "0");
     document.title = `${mm}:${ss} · ${MODE_THEME[mode].label} — Tomo`;
-  }, [secondsLeft, mode]);
+  }, [secondsLeft, mode, active]);
 
   const selectMode = (next: Mode) => {
     if (next === mode) return;

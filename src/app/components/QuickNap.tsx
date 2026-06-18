@@ -15,6 +15,7 @@ export default function QuickNap({
   onOpenSettings,
   miniPlayer,
   onStart,
+  active,
 }: ToolProps) {
   const [minutesPreset, setMinutesPreset] = useState(20);
   const [secondsLeft, setSecondsLeft] = useState(20 * 60);
@@ -24,8 +25,8 @@ export default function QuickNap({
   const total = minutesPreset * 60;
 
   useEffect(() => {
-    applyTheme(NAP_THEME.accent, NAP_THEME.soft, NAP_THEME.glow);
-  }, []);
+    if (active) applyTheme(NAP_THEME.accent, NAP_THEME.soft, NAP_THEME.glow);
+  }, [active]);
 
   const selectPreset = (m: number) => {
     setRunning(false);
@@ -58,10 +59,11 @@ export default function QuickNap({
   }, [running]);
 
   useEffect(() => {
+    if (!active) return;
     const mm = Math.floor(secondsLeft / 60).toString().padStart(2, "0");
     const ss = (secondsLeft % 60).toString().padStart(2, "0");
     document.title = `${mm}:${ss} · Quick Nap — Tomo`;
-  }, [secondsLeft]);
+  }, [secondsLeft, active]);
 
   const toggleRun = () => {
     if (!running) onStart();
