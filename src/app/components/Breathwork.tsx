@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Segmented from "./Segmented";
 import { applyTheme, type ToolProps } from "@/lib/tools";
 
 type Phase = { label: string; s: number; scale: number };
@@ -35,7 +36,7 @@ const PATTERNS: Record<string, { name: string; hint: string; phases: Phase[] }> 
   },
 };
 
-const THEME = { accent: "#34d8c0", soft: "#6ff0dd", glow: "52, 216, 192" };
+const THEME = { accent: "#3ecf8e", soft: "#6fe3ab", glow: "62, 207, 142" };
 
 export default function Breathwork({ onOpenSettings, miniPlayer, onStart }: ToolProps) {
   const [patternKey, setPatternKey] = useState<keyof typeof PATTERNS>("box");
@@ -124,23 +125,15 @@ export default function Breathwork({ onOpenSettings, miniPlayer, onStart }: Tool
           </button>
         </div>
 
-        <div className="mb-8 flex gap-1.5 rounded-full inset p-1.5">
-          {(Object.keys(PATTERNS) as (keyof typeof PATTERNS)[]).map((k) => (
-            <button
-              key={k}
-              onClick={() => selectPattern(k)}
-              className={`press flex-1 rounded-full py-2 text-xs font-semibold sm:text-sm ${
-                patternKey === k ? "text-white" : "text-muted hover:text-fg"
-              }`}
-              style={
-                patternKey === k
-                  ? { background: "linear-gradient(180deg, var(--accent-soft), var(--accent))" }
-                  : undefined
-              }
-            >
-              {PATTERNS[k].name}
-            </button>
-          ))}
+        <div className="mb-8">
+          <Segmented
+            items={(Object.keys(PATTERNS) as (keyof typeof PATTERNS)[]).map((k) => ({
+              key: k,
+              label: PATTERNS[k].name,
+            }))}
+            value={patternKey}
+            onChange={(k) => selectPattern(k as keyof typeof PATTERNS)}
+          />
         </div>
 
         {/* Breathing orb */}

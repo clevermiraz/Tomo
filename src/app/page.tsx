@@ -13,6 +13,7 @@ import InstallPrompt from "./components/InstallPrompt";
 import FocusTimer from "./components/FocusTimer";
 import QuickNap from "./components/QuickNap";
 import Breathwork from "./components/Breathwork";
+import Segmented from "./components/Segmented";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import { DEFAULT_SETTINGS, type Settings } from "@/lib/settings";
 import { resumeAudio } from "@/lib/audio";
@@ -122,25 +123,15 @@ export default function Home() {
           <p className="mt-1.5 text-sm text-muted">Your focus friend</p>
         </header>
 
-        {/* Tool switcher */}
-        <div className="surface z-10 mb-7 flex w-full max-w-md gap-1 rounded-full p-1.5">
-          {TOOLS.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTool(t.key)}
-              className={`press flex-1 rounded-full px-1 py-2 text-xs font-semibold sm:text-sm ${
-                tool === t.key ? "text-white" : "text-muted hover:text-fg"
-              }`}
-              style={
-                tool === t.key
-                  ? { background: "linear-gradient(180deg, var(--accent-soft), var(--accent))" }
-                  : undefined
-              }
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+          {/* Tool switcher */}
+          <div className="z-10 mb-7 w-full max-w-md">
+            <Segmented
+              items={TOOLS.map((t) => ({ key: t.key, label: t.label }))}
+              value={tool}
+              onChange={(k) => setTool(k as Tool)}
+              containerClassName="surface"
+            />
+          </div>
 
           {tool === "focus" && <FocusTimer {...toolProps} />}
           {tool === "nap" && <QuickNap {...toolProps} />}

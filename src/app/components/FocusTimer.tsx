@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import TimerRing from "./TimerRing";
+import Segmented from "./Segmented";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import { applyTheme, type ToolProps } from "@/lib/tools";
 import { playAlarm, playTick } from "@/lib/audio";
@@ -13,7 +14,7 @@ const MODE_THEME: Record<
   { label: string; accent: string; soft: string; glow: string }
 > = {
   focus: { label: "Focus", accent: "#f97362", soft: "#ff9d8f", glow: "249, 115, 98" },
-  short: { label: "Short Break", accent: "#34d8c0", soft: "#6ff0dd", glow: "52, 216, 192" },
+  short: { label: "Short Break", accent: "#3ecf8e", soft: "#6fe3ab", glow: "62, 207, 142" },
   long: { label: "Long Break", accent: "#6d8bff", soft: "#9db1ff", glow: "109, 139, 255" },
 };
 
@@ -155,23 +156,12 @@ export default function FocusTimer({
           </button>
         </div>
 
-        <div className="mb-8 flex gap-1.5 rounded-full inset p-1.5">
-          {(Object.keys(MODE_THEME) as Mode[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => selectMode(m)}
-              className={`press flex-1 rounded-full px-2 py-2 text-xs font-semibold sm:text-sm ${
-                mode === m ? "text-white" : "text-muted hover:text-fg"
-              }`}
-              style={
-                mode === m
-                  ? { background: "linear-gradient(180deg, var(--accent-soft), var(--accent))" }
-                  : undefined
-              }
-            >
-              {MODE_THEME[m].label}
-            </button>
-          ))}
+        <div className="mb-8">
+          <Segmented
+            items={(Object.keys(MODE_THEME) as Mode[]).map((m) => ({ key: m, label: MODE_THEME[m].label }))}
+            value={mode}
+            onChange={(k) => selectMode(k as Mode)}
+          />
         </div>
 
         <TimerRing progress={progress}>

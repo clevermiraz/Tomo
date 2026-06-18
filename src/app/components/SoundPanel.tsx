@@ -14,7 +14,6 @@ const TRACKS: Track[] = [
   { id: "rain", name: "Rainfall", vibe: "Rainy vibe", icon: "🌧️", kind: "synth", synth: "rain" },
   { id: "ocean", name: "Ocean Waves", vibe: "Calm tide", icon: "🌊", kind: "synth", synth: "ocean" },
   { id: "brown", name: "Brown Noise", vibe: "Deep focus", icon: "🟤", kind: "synth", synth: "brown" },
-  { id: "white", name: "White Noise", vibe: "Block it out", icon: "⚪", kind: "synth", synth: "white" },
   { id: "lofi", name: "Lofi Study", vibe: "Chill beats", icon: "🎵", kind: "file", src: "/sounds/lofi-study.mp3" },
   { id: "meditation", name: "Meditation", vibe: "Soft piano", icon: "🧘", kind: "file", src: "/sounds/ambient-meditation.mp3" },
   { id: "wholesome", name: "Wholesome Calm", vibe: "Warm ambient", icon: "☀️", kind: "file", src: "/sounds/ambient-wholesome.mp3" },

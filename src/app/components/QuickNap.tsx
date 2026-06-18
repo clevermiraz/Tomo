@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import TimerRing from "./TimerRing";
+import Segmented from "./Segmented";
 import { applyTheme, type ToolProps } from "@/lib/tools";
 import { playAlarm } from "@/lib/audio";
 
@@ -93,23 +94,12 @@ export default function QuickNap({
           </button>
         </div>
 
-        <div className="mb-8 flex gap-1.5 rounded-full inset p-1.5">
-          {PRESETS.map((m) => (
-            <button
-              key={m}
-              onClick={() => selectPreset(m)}
-              className={`press flex-1 rounded-full py-2 text-xs font-semibold sm:text-sm ${
-                minutesPreset === m ? "text-white" : "text-muted hover:text-fg"
-              }`}
-              style={
-                minutesPreset === m
-                  ? { background: "linear-gradient(180deg, var(--accent-soft), var(--accent))" }
-                  : undefined
-              }
-            >
-              {m}m
-            </button>
-          ))}
+        <div className="mb-8">
+          <Segmented
+            items={PRESETS.map((m) => ({ key: String(m), label: `${m}m` }))}
+            value={String(minutesPreset)}
+            onChange={(k) => selectPreset(Number(k))}
+          />
         </div>
 
         <TimerRing progress={progress}>

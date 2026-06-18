@@ -14,7 +14,8 @@ export default function TimerRing({
   return (
     <div className="relative mx-auto flex aspect-square w-full max-w-[300px] items-center justify-center">
       <svg className="absolute h-full w-full -rotate-90" viewBox="0 0 300 300">
-        <circle cx="150" cy="150" r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="14" />
+        <circle cx="150" cy="150" r={R - 7} fill="var(--ring-fill)" />
+        <circle cx="150" cy="150" r={R} fill="none" stroke="var(--ring-track)" strokeWidth="14" />
         <circle
           cx="150"
           cy="150"
