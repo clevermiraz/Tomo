@@ -80,8 +80,8 @@ export default function QuickNap({
 
   return (
     <>
-      <div className="surface z-10 w-full max-w-md rounded-[2rem] p-6 sm:p-8">
-        <div className="mb-5 flex items-center justify-between">
+      <div className="surface z-10 w-full max-w-md rounded-[2rem] p-5 sm:p-6">
+        <div className="mb-4 flex items-center justify-between">
           <span className="h-10 w-10" aria-hidden />
           <span className="text-xs font-medium uppercase tracking-[0.2em] text-faint">
             Quick Nap
@@ -95,7 +95,7 @@ export default function QuickNap({
           </button>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-6">
           <Segmented
             items={PRESETS.map((m) => ({ key: String(m), label: `${m}m` }))}
             value={String(minutesPreset)}
@@ -104,15 +104,15 @@ export default function QuickNap({
         </div>
 
         <TimerRing progress={progress}>
-          <span className="tabular text-6xl font-bold sm:text-7xl">
+          <span className="tabular text-5xl font-bold sm:text-6xl">
             {minutes}:{seconds}
           </span>
-          <span className="mt-2 text-xs font-medium uppercase tracking-[0.25em] text-faint">
+          <span className="mt-1.5 text-[10px] font-medium uppercase tracking-[0.25em] text-faint">
             {done ? "Time to wake" : running ? "Napping" : "Ready"}
           </span>
         </TimerRing>
 
-        <div className="mt-8 flex items-center justify-center gap-4">
+        <div className="mt-6 flex items-center justify-center gap-4">
           <button
             onClick={toggleRun}
             className="press btn-primary min-w-[150px] rounded-full px-8 py-4 text-base font-bold"
@@ -131,7 +131,7 @@ export default function QuickNap({
         {miniPlayer}
       </div>
 
-      <p className="z-10 mt-7 max-w-xs text-center text-sm text-muted">
+      <p className="z-10 mt-5 max-w-xs text-center text-sm text-muted">
         A 20-minute power nap boosts alertness without grogginess. Tomo wakes you gently.
       </p>
     </>

@@ -83,7 +83,7 @@ export default function Home() {
   const playing = sound.activeId != null;
 
   const miniPlayer = (
-    <div className="mt-6 flex items-center gap-2 rounded-2xl bg-surface2 p-2">
+    <div className="mt-5 flex items-center gap-2 rounded-2xl bg-surface2 p-2">
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => cycle(-1)}
@@ -154,13 +154,13 @@ export default function Home() {
       <SiteHeader onOpenGarden={() => setGardenOpen(true)} streak={streak} />
 
       <div className="flex min-h-dvh flex-col">
-        <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 py-24">
-          <header className="z-10 mb-6 text-center">
-            <h1 className="text-3xl font-bold tracking-tight">Tomo</h1>
-            <p className="mt-1.5 text-sm text-muted">Your focus friend</p>
+        <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-6 pt-20">
+          <header className="z-10 mb-4 text-center">
+            <h1 className="text-2xl font-bold tracking-tight">Tomo</h1>
+            <p className="mt-1 text-sm text-muted">Your focus friend</p>
           </header>
 
-          <div className="z-10 mb-7 w-full max-w-md">
+          <div className="z-10 mb-5 w-full max-w-md">
             <Segmented
               items={TOOLS.map((t) => ({ key: t.key, label: t.label }))}
               value={tool}
