@@ -112,6 +112,22 @@ body {
   letter-spacing: -0.02em;
 }
 
+/* Footer shows only on larger browser screens — hidden on mobile and in the
+   installed PWA for a cleaner, app-like UI. */
+.site-footer {
+  display: none;
+}
+@media (min-width: 768px) {
+  .site-footer {
+    display: block;
+  }
+}
+@media all and (display-mode: standalone) {
+  .site-footer {
+    display: none;
+  }
+}
+
 /* Slim, themed scrollbar for scrollable panels */
 .scroll-area {
   scrollbar-width: thin;
