@@ -29,6 +29,7 @@ export interface SoundControls {
   toggleById?: (id: string) => void;
   playDefault?: () => void;
   cycle?: (dir: 1 | -1) => void;
+  stop?: () => void;
 }
 
 export interface SoundState {
@@ -141,6 +142,11 @@ export default function SoundPanel({
         const next = i < 0 ? (dir === 1 ? 0 : TRACKS.length - 1) : (i + dir + TRACKS.length) % TRACKS.length;
         userPausedRef.current = false;
         play(TRACKS[next]);
+      },
+      stop: () => {
+        stop();
+        setActive(null);
+        userPausedRef.current = true;
       },
     });
   });

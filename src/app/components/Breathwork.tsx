@@ -11,7 +11,7 @@ import { playAlarm, playBreathCue, resumeAudio } from "@/lib/audio";
 type Kind = "in" | "out" | "hold";
 type Phase = { kind: Kind; s: number; scale: number };
 
-const PATTERNS: Record<string, { name: string; hint: string; phases: Phase[] }> = {
+const PATTERNS: Record<string, { name: string; hint: string; phases: Phase[]; premium?: boolean }> = {
   "478": {
     name: "4-7-8",
     hint: "Dr. Weil's relaxing breath — great before sleep.",
@@ -37,6 +37,25 @@ const PATTERNS: Record<string, { name: string; hint: string; phases: Phase[] }> 
     phases: [
       { kind: "in", s: 4, scale: 1 },
       { kind: "out", s: 6, scale: 0.5 },
+    ],
+  },
+  resonant: {
+    name: "5-5",
+    hint: "Coherent breathing — 5 in, 5 out — for steady calm.",
+    premium: true,
+    phases: [
+      { kind: "in", s: 5, scale: 1 },
+      { kind: "out", s: 5, scale: 0.5 },
+    ],
+  },
+  deep: {
+    name: "Deep",
+    hint: "Deep wind-down — 4 in, hold 4, long 8 out.",
+    premium: true,
+    phases: [
+      { kind: "in", s: 4, scale: 1 },
+      { kind: "hold", s: 4, scale: 1 },
+      { kind: "out", s: 8, scale: 0.5 },
     ],
   },
 };
@@ -71,7 +90,15 @@ function mmss(total: number) {
   return `${m}:${s}`;
 }
 
-export default function Breathwork({ settings, onOpenSettings, miniPlayer, active }: ToolProps) {
+export default function Breathwork({
+  settings,
+  onOpenSettings,
+  miniPlayer,
+  active,
+  soundControls,
+  premium,
+  onUpgrade,
+}: ToolProps) {
   const [patternKey, setPatternKey] = useState<keyof typeof PATTERNS>("box");
   const [durationMin, setDurationMin] = useState(2);
   const [running, setRunning] = useState(false);
@@ -168,6 +195,10 @@ export default function Breathwork({ settings, onOpenSettings, miniPlayer, activ
   }, [running]);
 
   const selectPattern = (k: keyof typeof PATTERNS) => {
+    if (PATTERNS[k].premium && !premium) {
+      onUpgrade();
+      return;
+    }
     setRunning(false);
     setPatternKey(k);
     phaseIndexRef.current = 0;
@@ -176,7 +207,8 @@ export default function Breathwork({ settings, onOpenSettings, miniPlayer, activ
   };
 
   const start = () => {
-    resumeAudio(); // enable breathing tones; no focus music here
+    resumeAudio(); // enable breathing tones
+    soundControls.current.stop?.(); // no focus music while breathing
     phaseIndexRef.current = 0;
     setPhaseIndex(0);
     setCycles(0);
@@ -216,7 +248,7 @@ export default function Breathwork({ settings, onOpenSettings, miniPlayer, activ
           <Segmented
             items={(Object.keys(PATTERNS) as (keyof typeof PATTERNS)[]).map((k) => ({
               key: k,
-              label: PATTERNS[k].name,
+              label: PATTERNS[k].premium && !premium ? `${PATTERNS[k].name} 🔒` : PATTERNS[k].name,
             }))}
             value={patternKey}
             onChange={(k) => selectPattern(k as keyof typeof PATTERNS)}

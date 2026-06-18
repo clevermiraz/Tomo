@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Flame, Trophy, Clock } from "lucide-react";
+import { Flame, Trophy, Clock, Download, Lock } from "lucide-react";
 import Sheet from "./Sheet";
 import {
   dayKey,
@@ -35,12 +35,35 @@ export default function GardenModal({
   onClose,
   garden,
   dailyGoal,
+  premium,
+  onUpgrade,
 }: {
   open: boolean;
   onClose: () => void;
   garden: GardenData;
   dailyGoal: number;
+  premium: boolean;
+  onUpgrade: () => void;
 }) {
+  const exportCsv = () => {
+    if (!premium) {
+      onUpgrade();
+      return;
+    }
+    const rows = [["date", "sessions", "focus_minutes"]];
+    Object.entries(garden.days)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .forEach(([date, d]) => rows.push([date, String(d.sessions), String(d.minutes)]));
+    const csv = rows.map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tomo-focus-stats.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const today = dayKey();
   const todayN = todaySessions(garden, today);
   const streak = computeStreak(garden.days, today);
@@ -133,6 +156,19 @@ export default function GardenModal({
           <p className="text-[11px] text-faint">total focus</p>
         </div>
       </div>
+
+      <button
+        onClick={exportCsv}
+        className="press mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-surface2 py-3 text-sm font-semibold"
+      >
+        {premium ? <Download size={16} /> : <Lock size={15} className="text-faint" />}
+        Export stats as CSV
+        {!premium ? (
+          <span className="rounded-full bg-surface px-2 py-0.5 text-[10px] font-bold text-accent">
+            Premium
+          </span>
+        ) : null}
+      </button>
     </Sheet>
   );
 }

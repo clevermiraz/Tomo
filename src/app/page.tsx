@@ -173,6 +173,8 @@ export default function Home() {
     streak,
     active: true,
     onRunningChange: setToolRunning,
+    premium,
+    onUpgrade: () => setPremiumOpen(true),
   };
 
   return (
@@ -253,6 +255,8 @@ export default function Home() {
         onClose={() => setGardenOpen(false)}
         garden={garden}
         dailyGoal={settings.dailyGoal}
+        premium={premium}
+        onUpgrade={() => setPremiumOpen(true)}
       />
       <PremiumModal
         open={premiumOpen}

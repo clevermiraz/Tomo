@@ -5,12 +5,11 @@ import { Sparkles } from "lucide-react";
 import Sheet from "./Sheet";
 
 const PERKS = [
-  { icon: "🎧", text: "Expanded sound library & upload your own tracks" },
-  { icon: "🎨", text: "Custom accent themes for the whole app" },
-  { icon: "📊", text: "Advanced stats, full history & CSV export" },
-  { icon: "☁️", text: "Sync your Focus Garden across devices" },
-  { icon: "🌙", text: "Premium breathing & guided sleep programs" },
-  { icon: "❤️", text: "Support Tomo's development" },
+  { icon: "📊", text: "Export your focus stats as CSV", live: true },
+  { icon: "🌬️", text: "Premium breathing patterns (5-5 & Deep)", live: true },
+  { icon: "🎧", text: "Upload your own focus sounds", live: false },
+  { icon: "🎨", text: "Custom accent themes", live: false },
+  { icon: "☁️", text: "Sync your Focus Garden across devices", live: false },
 ];
 
 export default function PremiumModal({
@@ -31,7 +30,7 @@ export default function PremiumModal({
       open={open}
       onClose={onClose}
       title="Tomo Premium"
-      subtitle={active ? "You're an early member 🎉" : "Coming soon — reserve free in beta"}
+      subtitle={active ? "You're an early member 🎉" : "Free during the beta"}
     >
       <div
         className="mb-4 flex items-center gap-3 rounded-2xl p-4 text-white"
@@ -40,15 +39,14 @@ export default function PremiumModal({
         <Sparkles size={24} />
         <div>
           <p className="text-sm font-bold">
-            {active ? "You're an early member" : "Reserve premium, free in beta"}
+            {active ? "Premium is active" : "Unlock Premium, free in beta"}
           </p>
           <p className="text-xs text-white/80">
-            These perks aren&apos;t live yet — they roll out during the beta.
+            {active ? "Your live perks are unlocked." : "Two perks work today — more during the beta."}
           </p>
         </div>
       </div>
 
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-faint">On the roadmap</p>
       <ul className="space-y-2.5">
         {PERKS.map((p) => (
           <li key={p.text} className="flex items-center gap-3 rounded-2xl bg-surface2 p-3">
@@ -56,15 +54,19 @@ export default function PremiumModal({
               {p.icon}
             </span>
             <span className="flex-1 text-sm">{p.text}</span>
-            <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 text-[10px] font-semibold text-faint">
-              Soon
+            <span
+              className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                p.live ? "bg-surface text-accent" : "bg-surface text-faint"
+              }`}
+            >
+              {p.live ? (active ? "Active" : "Included") : "Soon"}
             </span>
           </li>
         ))}
       </ul>
 
       <p className="mt-3 text-center text-xs text-faint">
-        Nothing is unlocked yet. Activating reserves these perks free for you as an early member.
+        Perks marked Active work now. The rest roll out during the beta — free for early members.
       </p>
 
       {active ? (

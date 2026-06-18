@@ -22,6 +22,10 @@ export interface ToolProps {
   active: boolean;
   /** Report whether this tool's timer is running (for leave warnings). */
   onRunningChange: (running: boolean) => void;
+  /** Whether the user has Premium. */
+  premium: boolean;
+  /** Open the Premium modal (for upgrade prompts). */
+  onUpgrade: () => void;
 }
 
 /** Apply a tool/mode accent to the global CSS variables. */
