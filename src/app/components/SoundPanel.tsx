@@ -30,6 +30,8 @@ export interface SoundControls {
   playDefault?: () => void;
   cycle?: (dir: 1 | -1) => void;
   stop?: () => void;
+  /** Pause playback without marking as user-paused — autoplay can resume it. */
+  pause?: () => void;
 }
 
 export interface SoundState {
@@ -147,6 +149,11 @@ export default function SoundPanel({
         stop();
         setActive(null);
         userPausedRef.current = true;
+      },
+      pause: () => {
+        // Pauses audio but keeps userPausedRef false so autoplay
+        // can resume when the next focus session starts.
+        if (audioRef.current) audioRef.current.pause();
       },
     });
   });

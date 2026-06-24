@@ -114,6 +114,9 @@ export default function FocusTimer({
         setRunning(false);
         savedRef.current[mode] = minutesFor(mode) * 60; // finished mode resets for next time
         if (s.soundOn) playAlarm(mode === "focus" ? "focusEnd" : "breakEnd", s.volume);
+        // Pause any playing music so the alarm is heard clearly and the
+        // modal gets full attention. Autoplay will resume it on next session.
+        soundControls.current.pause?.();
         // Vibrate on supported devices (mobile/PWA), replay alarm on desktop as fallback
         if (typeof navigator !== "undefined") {
           if (navigator.vibrate) {
