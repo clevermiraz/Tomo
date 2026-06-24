@@ -122,6 +122,14 @@ body {
     display: block;
   }
 }
+/* In PWA standalone mode, disable native overscroll/bounce so our custom
+   pull-to-refresh gesture takes full control of the top-of-page pull. */
+@media all and (display-mode: standalone) {
+  html, body {
+    overscroll-behavior-y: none;
+  }
+}
+
 @media all and (display-mode: standalone) {
   .site-footer {
     display: none;

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronLeft, ChevronRight, Music, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Music, Play, RotateCcw } from "lucide-react";
 import SiteHeader from "./components/SiteHeader";
 import SiteFooter from "./components/SiteFooter";
 import SettingsModal from "./components/SettingsModal";
@@ -51,6 +51,79 @@ export default function Home() {
   const [pendingTool, setPendingTool] = useState<Tool | null>(null);
   const [sound, setSound] = useState<SoundState>({ activeId: null, name: null, vibe: null, icon: null });
   const [celebrate, setCelebrate] = useState<{ key: number; count: number; streak: number } | null>(null);
+
+  // ── Pull-to-refresh (PWA only) ───────────────────────────────────────────
+  const [isPWA, setIsPWA] = useState(false);
+  const [pullDist, setPullDist] = useState(0);   // visual distance (capped, resisted)
+  const [pendingReload, setPendingReload] = useState(false);
+  const pullDistRef = useRef(0);
+  const toolRunningRef = useRef(false);           // ref so touch handlers read live value
+
+  useEffect(() => { toolRunningRef.current = toolRunning; }, [toolRunning]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(display-mode: standalone)");
+    setIsPWA(mq.matches);
+  }, []);
+
+  useEffect(() => {
+    if (!isPWA) return;
+
+    let active = false;
+    let startY = 0;
+    const THRESHOLD = 60; // px (visual) before release triggers reload
+
+    const onTouchStart = (e: TouchEvent) => {
+      // Only start a pull gesture when already at the top of the page
+      if (window.scrollY === 0) {
+        startY = e.touches[0].clientY;
+        active = true;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!active) return;
+      const rawDist = e.touches[0].clientY - startY;
+      if (rawDist > 0) {
+        e.preventDefault(); // block native scroll bounce
+        // Rubber-band resistance: finger travels 2× further than the indicator moves
+        const visual = Math.min(rawDist * 0.5, 80);
+        pullDistRef.current = visual;
+        setPullDist(visual);
+      } else {
+        // Scrolling up — cancel
+        active = false;
+        pullDistRef.current = 0;
+        setPullDist(0);
+      }
+    };
+
+    const onTouchEnd = () => {
+      if (!active) return;
+      active = false;
+      const dist = pullDistRef.current;
+      pullDistRef.current = 0;
+      setPullDist(0);
+
+      if (dist >= THRESHOLD) {
+        if (toolRunningRef.current) {
+          // Timer is running — confirm before reloading
+          setPendingReload(true);
+        } else {
+          window.location.reload();
+        }
+      }
+    };
+
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+    document.addEventListener("touchend", onTouchEnd);
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [isPWA]);
 
   // Switching tools while a timer runs will stop it — warn first.
   const requestTool = (next: Tool) => {
@@ -179,6 +252,23 @@ export default function Home() {
 
   return (
     <>
+      {/* ── Pull-to-refresh indicator (PWA only) ─────────────────────── */}
+      {isPWA && pullDist > 0 && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-x-0 top-0 z-[300] flex justify-center"
+          style={{ transform: `translateY(${pullDist - 44}px)`, opacity: pullDist / 60 }}
+        >
+          <div className="surface flex h-11 w-11 items-center justify-center rounded-full">
+            <motion.div
+              animate={{ rotate: pullDist >= 60 ? 180 : 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <RotateCcw size={18} className="text-accent" />
+            </motion.div>
+          </div>
+        </div>
+      )}
       <SiteHeader
         onOpenGarden={() => setGardenOpen(true)}
         streak={streak}
@@ -278,6 +368,15 @@ export default function Home() {
           setPendingTool(null);
         }}
         onCancel={() => setPendingTool(null)}
+      />
+      <ConfirmDialog
+        open={pendingReload}
+        title="Timer is running"
+        message="Refreshing will stop your current timer. Refresh anyway?"
+        confirmLabel="Refresh"
+        cancelLabel="Go back"
+        onConfirm={() => { setPendingReload(false); window.location.reload(); }}
+        onCancel={() => setPendingReload(false)}
       />
       <InstallPrompt />
     </>
