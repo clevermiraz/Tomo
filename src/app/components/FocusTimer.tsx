@@ -117,12 +117,16 @@ export default function FocusTimer({
         // Pause any playing music so the alarm is heard clearly and the
         // modal gets full attention. Autoplay will resume it on next session.
         soundControls.current.pause?.();
-        // Vibrate on supported devices (mobile/PWA), replay alarm on desktop as fallback
+        // Vibration: only attempt on real mobile hardware.
+        // Desktop Chrome has navigator.vibrate but no motor — it silently
+        // returns true with no buzz. iOS Safari doesn't have the API at all.
+        // So we gate on user-agent AND check the return value.
         if (typeof navigator !== "undefined") {
-          if (navigator.vibrate) {
-            navigator.vibrate([300, 100, 300, 100, 500]);
-          } else if (s.soundOn) {
-            // Desktop: replay alarm slightly delayed so it double-taps for attention
+          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+          const vibrated = isMobile && navigator.vibrate?.([300, 100, 300, 100, 500]);
+          if (!vibrated && s.soundOn) {
+            // Not mobile, or vibrate blocked/failed: double-chime so the
+            // alert is impossible to miss on Mac/iOS.
             setTimeout(() => playAlarm(mode === "focus" ? "focusEnd" : "breakEnd", s.volume * 0.75), 900);
           }
         }

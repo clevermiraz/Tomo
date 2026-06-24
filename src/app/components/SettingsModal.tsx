@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Minus, Plus, Lock } from "lucide-react";
 import Sheet from "./Sheet";
 import { DEFAULT_SETTINGS, type Settings } from "@/lib/settings";
+import { playAlarm, resumeAudio } from "@/lib/audio";
 
 function Stepper({
   label,
@@ -91,6 +93,37 @@ export default function SettingsModal({
 }) {
   const set = (patch: Partial<Settings>) => onChange({ ...settings, ...patch });
 
+  // Detect alert method available on this device (client-side only)
+  const [alertMethod, setAlertMethod] = useState<"vibration" | "sound" | null>(null);
+  const [testState, setTestState] = useState<"idle" | "testing" | "done">("idle");
+
+  useEffect(() => {
+    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+    const hasVibration = isMobile && "vibrate" in navigator;
+    setAlertMethod(hasVibration ? "vibration" : "sound");
+  }, []);
+
+  const testAlerts = () => {
+    if (testState !== "idle") return;
+    setTestState("testing");
+    resumeAudio();
+
+    // This is a direct user gesture — vibration will work here on Android
+    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+    const vibrated = isMobile && navigator.vibrate?.([300, 100, 300, 100, 500]);
+
+    // Always play the alarm as part of the test
+    playAlarm("focusEnd", settings.volume);
+
+    // On desktop/iOS, also play the double-chime fallback
+    if (!vibrated) {
+      setTimeout(() => playAlarm("focusEnd", settings.volume * 0.75), 900);
+    }
+
+    setTimeout(() => setTestState("done"), 1800);
+    setTimeout(() => setTestState("idle"), 3500);
+  };
+
   return (
     <Sheet open={open} onClose={onClose} title="Settings">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-faint">Timer (minutes)</p>
@@ -156,6 +189,26 @@ export default function SettingsModal({
             onChange={(e) => set({ volume: Number(e.target.value) })}
             className="w-full accent-accent"
           />
+        </div>
+
+        {/* Alert method status + test button */}
+        <div className="flex items-center justify-between rounded-2xl bg-surface2 p-3">
+          <span className="text-sm">
+            <span className="font-medium">Session alert</span>
+            {alertMethod !== null && (
+              <span className="block text-xs text-faint">
+                {alertMethod === "vibration" ? "📳 Vibration + sound" : "🔔 Double chime (no vibration on this device)"}
+              </span>
+            )}
+          </span>
+          <button
+            id="test-alerts-btn"
+            onClick={testAlerts}
+            disabled={testState !== "idle" || !settings.soundOn}
+            className="press shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
+          >
+            {testState === "done" ? "✓ Done" : testState === "testing" ? "Playing…" : "Test"}
+          </button>
         </div>
       </div>
 
