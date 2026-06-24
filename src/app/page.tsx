@@ -240,6 +240,8 @@ export default function Home() {
         onClose={() => setSettingsOpen(false)}
         settings={settings}
         onChange={setSettings}
+        premium={premium}
+        onUpgrade={() => setPremiumOpen(true)}
       />
       <SoundPanel
         open={soundOpen}

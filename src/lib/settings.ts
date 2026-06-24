@@ -10,6 +10,7 @@ export interface Settings {
   autoplayFocus: boolean; // auto-play focus sounds during focus, pause on breaks
   defaultMusic: boolean; // start the default focus music when the timer starts
   dailyGoal: number; // focus sessions per day target
+  strictMode: boolean; // premium: hold-to-extend, repeating chimes, momentum boost
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -24,4 +25,5 @@ export const DEFAULT_SETTINGS: Settings = {
   autoplayFocus: false,
   defaultMusic: true,
   dailyGoal: 4,
+  strictMode: true,
 };

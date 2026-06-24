@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Lock } from "lucide-react";
 import Sheet from "./Sheet";
 import { DEFAULT_SETTINGS, type Settings } from "@/lib/settings";
 
@@ -79,11 +79,15 @@ export default function SettingsModal({
   onClose,
   settings,
   onChange,
+  premium = false,
+  onUpgrade,
 }: {
   open: boolean;
   onClose: () => void;
   settings: Settings;
   onChange: (s: Settings) => void;
+  premium?: boolean;
+  onUpgrade?: () => void;
 }) {
   const set = (patch: Partial<Settings>) => onChange({ ...settings, ...patch });
 
@@ -161,6 +165,30 @@ export default function SettingsModal({
       >
         Reset to defaults
       </button>
+
+      {/* Focus Discipline — premium gated */}
+      <p className="mb-2 mt-6 text-xs font-semibold uppercase tracking-wider text-faint">Focus Discipline</p>
+      {premium ? (
+        <div className="space-y-2.5">
+          <Toggle
+            label="Strict Mode"
+            hint="Hold to extend, repeating alerts, momentum rewards"
+            checked={settings.strictMode}
+            onChange={(v) => set({ strictMode: v })}
+          />
+        </div>
+      ) : (
+        <button
+          onClick={onUpgrade}
+          className="press flex w-full items-center gap-3 rounded-2xl bg-surface2 p-3 text-left"
+        >
+          <Lock size={16} className="shrink-0 text-faint" />
+          <span className="text-sm">
+            <span className="font-semibold">Strict Mode</span>
+            <span className="block text-xs text-faint">Upgrade to Premium to unlock</span>
+          </span>
+        </button>
+      )}
     </Sheet>
   );
 }

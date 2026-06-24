@@ -114,7 +114,15 @@ export default function FocusTimer({
         setRunning(false);
         savedRef.current[mode] = minutesFor(mode) * 60; // finished mode resets for next time
         if (s.soundOn) playAlarm(mode === "focus" ? "focusEnd" : "breakEnd", s.volume);
-        if (typeof navigator !== "undefined") navigator.vibrate?.([200, 100, 200]);
+        // Vibrate on supported devices (mobile/PWA), replay alarm on desktop as fallback
+        if (typeof navigator !== "undefined") {
+          if (navigator.vibrate) {
+            navigator.vibrate([300, 100, 300, 100, 500]);
+          } else if (s.soundOn) {
+            // Desktop: replay alarm slightly delayed so it double-taps for attention
+            setTimeout(() => playAlarm(mode === "focus" ? "focusEnd" : "breakEnd", s.volume * 0.75), 900);
+          }
+        }
 
         if (mode === "focus") {
           if (extendingRef.current) {
@@ -294,6 +302,9 @@ export default function FocusTimer({
         onStartNext={startNext}
         onExtend={extendSession}
         onDismiss={() => setCompletion(null)}
+        strictMode={settings.strictMode}
+        soundOn={settings.soundOn}
+        volume={settings.volume}
       />
     </>
   );
